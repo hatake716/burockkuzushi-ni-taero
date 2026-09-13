@@ -77,7 +77,7 @@ printf 'sdk.dir=/path/to/Android/Sdk\n' > local.properties
 ```
 
 直接インストールして試せる開発用APK：`app/build/outputs/apk/debug/app-debug.apk`。
-release APK / AABは配布鍵を設定していないため**未署名**。Google Play向けの署名・ストア素材・公開は別工程。
+Gradle直後のrelease APK / AABは未署名です。`tools/sign_play_artifacts.py` でGit管理外の鍵を使って署名します。1.0.3の署名付きAPK/AABと日英のGoogle Play素材を `artifacts/play-1.0.3/release/` と `docs/store/` に用意しています。公開手順は [Google Play素材ガイド](docs/PLAY_STORE.md)、確認記録は [リリース検証](docs/PLAY_RELEASE.md) を参照してください。Play Consoleへの送信・公開は未実施です。
 `local.properties`、署名鍵、生成したAPK/AABはGit管理対象外。
 
 ```sh

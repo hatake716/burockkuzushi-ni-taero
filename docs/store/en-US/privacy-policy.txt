@@ -1,0 +1,26 @@
+Privacy Policy
+Survive Breakout! / ブロック崩しに耐えろ！
+Developer: hatake716
+Updated: September 13, 2026
+
+This is an offline game. Gameplay is processed on your device. There are no accounts, advertisements, in-app purchases, analytics services, or developer-operated crash reporting. The app does not send gameplay data or personal information to the developer or third parties.
+
+Information stored on your device
+The app stores survival time, scores, play dates, rebuild counts, slot counts, your best 100 results, the board, balls and effects of a saved game, and audio, vibration and visual settings in its private storage. Random game identifiers are also used only on your device. This information supports saved games, rankings and preferences.
+
+Permissions and device settings
+Vibration is used for touch feedback. Your device language determines whether the interface is Japanese or English. The app does not access contacts, location, the camera, microphone, photos or advertising identifiers. It has no Internet permission.
+
+Retention and deletion
+Local information remains while you use the app. Clear the app storage in Android settings or uninstall the app to delete it. Rankings and saved games cannot be recovered after deletion. Android automatic backup is disabled. Any operating-system or device migration features follow the respective provider's specifications.
+
+Contacting support
+If you email acesmash@gmail.com, the developer uses your email address and message to respond to your request or investigate a problem, and retains them for as long as needed for that purpose. You can contact the same address about retention or deletion. Email is also subject to your email provider's terms and privacy policy. The app does not send email automatically.
+
+Third-party services
+Google Play, Android and email services process information under their own policies. The provider hosting a public support page may process access logs.
+
+Changes
+If the app's data practices change, this policy and its revision date will be updated.
+
+Contact: hatake716 / acesmash@gmail.com

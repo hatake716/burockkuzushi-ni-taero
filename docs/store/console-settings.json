@@ -1,0 +1,35 @@
+{
+  "application_id": "io.github.hatake716.taero",
+  "version_name": "1.0.3",
+  "version_code": 4,
+  "developer_name": "hatake716",
+  "support_email": "acesmash@gmail.com",
+  "default_listing_language": "ja-JP",
+  "additional_listing_languages": [
+    "en-US"
+  ],
+  "app_type": "GAME",
+  "category": "ARCADE",
+  "suggested_tags": [
+    "Arcade",
+    "Single player",
+    "Offline"
+  ],
+  "contains_ads": false,
+  "in_app_purchases": false,
+  "app_access": "All features available without login, membership or geographic restriction",
+  "data_collected": false,
+  "data_shared": false,
+  "privacy_policy_url": null,
+  "website_url": null,
+  "youtube_preview_urls": {
+    "ja-JP": null,
+    "en-US": null
+  },
+  "target_age_groups": null,
+  "iarc_rating_status": "Questionnaire not submitted; no rating assigned",
+  "price": null,
+  "distribution_countries": null,
+  "console_uploaded": false,
+  "publication_status": "Materials prepared locally; not published to Google Play"
+}

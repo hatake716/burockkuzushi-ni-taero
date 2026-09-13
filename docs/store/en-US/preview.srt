@@ -1,0 +1,19 @@
+1
+00:00:00,000 --> 00:00:04,000
+The CPU breaks them. You rebuild.
+
+2
+00:00:04,000 --> 00:00:09,000
+Restore empty blocks with one finger.
+
+3
+00:00:09,000 --> 00:00:17,000
+CPU effects stack every 7 seconds.
+
+4
+00:00:17,000 --> 00:00:20,700
+Two fingers? Rebuilding locks for 3s.
+
+5
+00:00:20,700 --> 00:00:25,236
+Your score = survival seconds squared.

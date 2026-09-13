@@ -1,0 +1,63 @@
+{
+  "version": "1.0.3",
+  "language": "en-US",
+  "capture": "Android API 35 emulator, 1080 × 1920, ordinary touch input, unmodified game state",
+  "screenshots": "Full screen, no overlays or retouching; lossless RGBA to RGB encoding only. Snapshot log reads state after capture; that observation can differ from the presented frame.",
+  "video": {
+    "source_sha256": "266ba0537d767b8357e9c3b1f84c575291d4a0d7a01b10605d941e9aa3aa9b65",
+    "trim_start_seconds": 3.9,
+    "duration_seconds": 25.235822000000002,
+    "screen": "Entire captured screen scaled to 1000 × 1778 inside a 1080 × 1920 caption layout; no speed changes or spliced gameplay.",
+    "audio": "New mix of original bundled music and sound effects; event-log timings are approximate (capture/compositor latency is not corrected). Not device audio capture. Random in-game burst pitch and paddle sounds are not reproduced exactly."
+  },
+  "screenshots_capture_log": [
+    {
+      "file": "08-title.png",
+      "videoSeconds": 1.674,
+      "gameSeconds": 0,
+      "score": "0.0000"
+    },
+    {
+      "file": "01-gameplay.png",
+      "videoSeconds": 8.508,
+      "gameSeconds": 3.772526315,
+      "score": "14.2317"
+    },
+    {
+      "file": "02-gameplay.png",
+      "videoSeconds": 12.051,
+      "gameSeconds": 7.305951314,
+      "score": "53.3761"
+    },
+    {
+      "file": "03-gameplay.png",
+      "videoSeconds": 16.154,
+      "gameSeconds": 11.294804824,
+      "score": "127.5725"
+    },
+    {
+      "file": "04-gameplay.png",
+      "videoSeconds": 19.492,
+      "gameSeconds": 14.674161404,
+      "score": "215.3292"
+    },
+    {
+      "file": "05-one-finger-rule.png",
+      "videoSeconds": 22.71,
+      "gameSeconds": 17.877204177,
+      "score": "319.5942"
+    },
+    {
+      "file": "06-result.png",
+      "videoSeconds": 28.848,
+      "gameSeconds": 22.93229663,
+      "score": "525.8857"
+    },
+    {
+      "file": "07-ranking.png",
+      "videoSeconds": 29.683,
+      "gameSeconds": 22.93229663,
+      "score": "525.8857"
+    }
+  ]
+}

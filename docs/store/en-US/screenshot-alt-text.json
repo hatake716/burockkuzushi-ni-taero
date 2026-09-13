@@ -1,0 +1,34 @@
+[
+  {
+    "file": "screenshots/01-gameplay.png",
+    "alt": "Defend 40 blocks. Tap an empty space with one finger to rebuild it."
+  },
+  {
+    "file": "screenshots/02-gameplay.png",
+    "alt": "The CPU slot selects an effect automatically every seven seconds."
+  },
+  {
+    "file": "screenshots/03-gameplay.png",
+    "alt": "Neon destruction and regeneration. The HUD shows time and survival seconds squared."
+  },
+  {
+    "file": "screenshots/04-gameplay.png",
+    "alt": "Track CPU balls, speed, temporary effects and the countdown to the next slot outcome."
+  },
+  {
+    "file": "screenshots/05-one-finger-rule.png",
+    "alt": "NO CHEATING! Two or more fingers lock block regeneration for three seconds."
+  },
+  {
+    "file": "screenshots/06-result.png",
+    "alt": "The result shows survival time, score, rebuilds and CPU slot effects."
+  },
+  {
+    "file": "screenshots/07-ranking.png",
+    "alt": "Your best 100 results are stored on this device. This recording contains one result."
+  },
+  {
+    "file": "screenshots/08-title.png",
+    "alt": "English title screen with play, instructions, rankings and settings."
+  }
+]

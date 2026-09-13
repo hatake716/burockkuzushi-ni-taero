@@ -1,0 +1,43 @@
+The CPU breaks them. You bring them back.
+
+Survive Breakout! puts you on the other side of the classic arcade game. You are the god who rebuilds blocks. Keep the CPU from destroying all 40, and see how long you can defend the very last one.
+
+REBUILD WITH ONE FINGER
+The arena contains eight columns and five rows of blocks. Tap an empty space and lift your finger to rebuild that block. Choose where to restore the wall as the balls keep moving.
+
+Touch with two or more fingers at once and a NO CHEATING! alert locks regeneration for three seconds. The CPU keeps playing during the penalty.
+
+A NEW CPU EFFECT EVERY SEVEN SECONDS
+The single-column slot in the bottom right stops every seven seconds and selects one of nine outcomes:
+
+- Add three balls
+- Double the current ball speed
+- Triple the current ball speed
+- Pierce blocks for five seconds
+- Split each ball into two when it hits a block, for five seconds
+- Reset the ball count to one
+- Reset ball speed to its initial value
+- Add five balls and pierce for five seconds
+- Triple the current speed and split for five seconds
+
+Speed multipliers stack. Winning pierce or split again adds five seconds to the remaining duration. A reset can change the situation just when the arena gets dangerous.
+
+The slot only selects CPU gameplay effects. There are no coin purchases, wagers, cash prizes or cash-outs.
+
+SURVIVE LONGER. SCORE HIGHER.
+Your score is survival time in seconds squared: 10 seconds earns 100 points, 30 earns 900, and 60 earns 3,600. Time and score update during play, with survival time displayed to four decimal places.
+
+Your best 100 completed runs are saved in a ranking on this device. Keep chasing your own record.
+
+NEON FIREWORKS, ORIGINAL MUSIC
+Every shattered block bursts into neon particles with an electronic sound effect. An original soundtrack blends synth, piano and drums as the arena gets more intense.
+
+PLAY AT YOUR OWN PACE
+- Works offline
+- No accounts, ads or in-app purchases
+- Pause and save an unfinished game
+- Separate music, sound effect and vibration settings
+- Option to reduce flashes and particles
+- Japanese when Japanese is the device's first language; English otherwise
+
+Defend the last block. Survive Breakout!

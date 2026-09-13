@@ -1,0 +1,34 @@
+[
+  {
+    "file": "screenshots/01-gameplay.png",
+    "alt": "40個のブロックを守るゲーム画面。空いた場所をタップして再生します。"
+  },
+  {
+    "file": "screenshots/02-gameplay.png",
+    "alt": "７秒ごとにCPUのスロットが止まり、効果を自動抽選します。"
+  },
+  {
+    "file": "screenshots/03-gameplay.png",
+    "alt": "ネオンの破壊と再生。経過時間と秒数の２乗スコアを上部に表示します。"
+  },
+  {
+    "file": "screenshots/04-gameplay.png",
+    "alt": "CPUの玉数・速度・特殊効果と、次の抽選までの時間が分かります。"
+  },
+  {
+    "file": "screenshots/05-one-finger-rule.png",
+    "alt": "２本以上の指で触ると「ズルはダメ！」。３秒間ブロックを再生できません。"
+  },
+  {
+    "file": "screenshots/06-result.png",
+    "alt": "終了後に生存時間、スコア、再生回数とスロット効果回数を表示します。"
+  },
+  {
+    "file": "screenshots/07-ranking.png",
+    "alt": "上位100件を端末内に保存するランキング。この収録では１件を記録しています。"
+  },
+  {
+    "file": "screenshots/08-title.png",
+    "alt": "日本語のタイトル画面。ゲーム開始、遊び方、ランキング、設定を選べます。"
+  }
+]

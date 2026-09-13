@@ -123,6 +123,9 @@ class GameUiTest {
         val deadline=SystemClock.uptimeMillis()+1500
         while(GameStore(context).music && SystemClock.uptimeMillis()<deadline) SystemClock.sleep(30)
         assertFalse(GameStore(context).music)
+        device.findObject(By.res("android:id/button3")).click()
+        assertTrue(device.wait(Until.hasObject(By.textContains("acesmash@gmail.com")),2000))
+        shot("privacy")
         device.findObject(By.res("android:id/button1")).click()
     }
 

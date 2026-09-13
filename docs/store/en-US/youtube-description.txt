@@ -1,0 +1,6 @@
+A reverse breakout survival game. Rebuild the blocks with one finger as CPU effects stack. Recorded from actual gameplay.
+
+Developer: hatake716
+Contact: acesmash@gmail.com
+
+Music and effects: original audio created for this game.

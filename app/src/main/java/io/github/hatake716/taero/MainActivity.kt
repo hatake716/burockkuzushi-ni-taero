@@ -75,6 +75,9 @@ class MainActivity : ComponentActivity() {
                 }
                 audio.start()
                 gameView.invalidate()
+            }.setNeutralButton(R.string.privacy_title) { _, _ ->
+                AlertDialog.Builder(this).setTitle(R.string.privacy_title)
+                    .setMessage(R.string.privacy_body).setPositiveButton(R.string.close, null).show()
             }.setPositiveButton(R.string.close, null).create()
         dialog.setOnDismissListener { if (gameView.screen == GameView.Screen.PAUSED) audio.pause() }
         dialog.show()

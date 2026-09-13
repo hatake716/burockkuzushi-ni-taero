@@ -1,0 +1,390 @@
+{
+  "application_id": "io.github.hatake716.taero",
+  "version": "1.0.3",
+  "checked_on": "2026-09-13",
+  "screenshots": 16,
+  "videos": 2,
+  "entries": [
+    {
+      "file": "shared/icon-512.png",
+      "kind": "icon",
+      "bytes": 48551,
+      "sha256": "61f596e55b5d3d5c483eed8a6cfea9c067bf10f6b4255d101fe76d184e92b48f",
+      "width": 512,
+      "height": 512,
+      "color_type": 6
+    },
+    {
+      "file": "ja-JP/title.txt",
+      "kind": "store-copy",
+      "bytes": 34,
+      "sha256": "c2682a8cc0d108d82ec3b213a5cd70d8a2a16fcd4eb819677b347b8e44cdbe35",
+      "characters": 11,
+      "limit": 30
+    },
+    {
+      "file": "ja-JP/short-description.txt",
+      "kind": "store-copy",
+      "bytes": 159,
+      "sha256": "dc22d1434e46615b771f76d547033033133182a235379cd71c33246ccba6fb5f",
+      "characters": 56,
+      "limit": 80
+    },
+    {
+      "file": "ja-JP/full-description.txt",
+      "kind": "store-copy",
+      "bytes": 2797,
+      "sha256": "c884a07d4ef8386262e7030136b02e4be8c6839d7bd2569e08115026e9d97783",
+      "characters": 989,
+      "limit": 4000
+    },
+    {
+      "file": "ja-JP/release-notes.txt",
+      "kind": "store-copy",
+      "bytes": 274,
+      "sha256": "52d776735c7374a7f807a37ec67959f4612edb528f92f78f6e177627d7f79855",
+      "characters": 95,
+      "limit": 500
+    },
+    {
+      "file": "ja-JP/feature-1024x500.png",
+      "kind": "feature",
+      "bytes": 184019,
+      "sha256": "a49dd516c4cc4e6b8e406945ed1fe9f4d2158b0f4689d00f5d84b1414172e863",
+      "width": 1024,
+      "height": 500,
+      "color_type": 2
+    },
+    {
+      "file": "ja-JP/screenshots/01-gameplay.png",
+      "kind": "phone-screenshot",
+      "bytes": 209214,
+      "sha256": "5b73ad52ca4669814ba3b28dac6af99a20383fffa0b5bdd5eea274dbc5d9a7f7",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "40個のブロックを守るゲーム画面。空いた場所をタップして再生します。"
+    },
+    {
+      "file": "ja-JP/screenshots/02-gameplay.png",
+      "kind": "phone-screenshot",
+      "bytes": 211374,
+      "sha256": "cb2e17014a87b86499e0b9446f0a8c8f31080317ef8ba3070739152170a7c2b9",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "７秒ごとにCPUのスロットが止まり、効果を自動抽選します。"
+    },
+    {
+      "file": "ja-JP/screenshots/03-gameplay.png",
+      "kind": "phone-screenshot",
+      "bytes": 211320,
+      "sha256": "893798d72961c9187afa8f2badc33706f90932135121ee98360044ed2b910691",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "ネオンの破壊と再生。経過時間と秒数の２乗スコアを上部に表示します。"
+    },
+    {
+      "file": "ja-JP/screenshots/04-gameplay.png",
+      "kind": "phone-screenshot",
+      "bytes": 210765,
+      "sha256": "8601517d7d98e33dd187bc58d524d9439840f9a9235ae183830d2e702980b89f",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "CPUの玉数・速度・特殊効果と、次の抽選までの時間が分かります。"
+    },
+    {
+      "file": "ja-JP/screenshots/05-one-finger-rule.png",
+      "kind": "phone-screenshot",
+      "bytes": 227367,
+      "sha256": "94df4fef52815a29f8282bba6870149cbb9242c058c39efdfc356575b7298be1",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "２本以上の指で触ると「ズルはダメ！」。３秒間ブロックを再生できません。"
+    },
+    {
+      "file": "ja-JP/screenshots/06-result.png",
+      "kind": "phone-screenshot",
+      "bytes": 147343,
+      "sha256": "04abdb9e85a117dd703285c4d465331874856d8a60fb3a25a2c5222ad974c812",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "終了後に生存時間、スコア、再生回数とスロット効果回数を表示します。"
+    },
+    {
+      "file": "ja-JP/screenshots/07-ranking.png",
+      "kind": "phone-screenshot",
+      "bytes": 122718,
+      "sha256": "96548b6565b22277491364c24d1494eebec4f67c29d6cafdd32e596693c23536",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "上位100件を端末内に保存するランキング。この収録では１件を記録しています。"
+    },
+    {
+      "file": "ja-JP/screenshots/08-title.png",
+      "kind": "phone-screenshot",
+      "bytes": 295749,
+      "sha256": "0860db3f3dd3facb0e80fac771b25344d3bb6f6597b1148bdd693ee2bdd29000",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "日本語のタイトル画面。ゲーム開始、遊び方、ランキング、設定を選べます。"
+    },
+    {
+      "file": "ja-JP/preview.mp4",
+      "kind": "preview-video",
+      "bytes": 4610036,
+      "sha256": "fc832ef8475552d6bdf2305e45e046e8c77e463d27047660fa784e7e499eec39",
+      "width": 1080,
+      "height": 1920,
+      "duration_seconds": 36.635,
+      "video": "H.264, 30 fps output",
+      "audio": "AAC, 48 kHz, stereo"
+    },
+    {
+      "file": "en-US/title.txt",
+      "kind": "store-copy",
+      "bytes": 18,
+      "sha256": "937e6b31abda47c0838762d4455c9272b0a414eecddccd5c6713a8193ddead52",
+      "characters": 17,
+      "limit": 30
+    },
+    {
+      "file": "en-US/short-description.txt",
+      "kind": "store-copy",
+      "bytes": 79,
+      "sha256": "1ab35c73499eb3d2c50203dbea35b5d8c99456760e8bd9ae4800dbee9bd13cbe",
+      "characters": 78,
+      "limit": 80
+    },
+    {
+      "file": "en-US/full-description.txt",
+      "kind": "store-copy",
+      "bytes": 2215,
+      "sha256": "e132da2127e0c8d4725e58ab3bd6e9717afdeccadecd65c1ba4c68278a7c5a69",
+      "characters": 2214,
+      "limit": 4000
+    },
+    {
+      "file": "en-US/release-notes.txt",
+      "kind": "store-copy",
+      "bytes": 156,
+      "sha256": "ff82e2d540717acd0876aee510d4a8ddddf5e87479ff7419dc80d41be4ce9593",
+      "characters": 155,
+      "limit": 500
+    },
+    {
+      "file": "en-US/feature-1024x500.png",
+      "kind": "feature",
+      "bytes": 184478,
+      "sha256": "e2d87596230abd5143a3f2edecc1e3ce61d5c02f420005d18d7c04b5c9f3c5b7",
+      "width": 1024,
+      "height": 500,
+      "color_type": 2
+    },
+    {
+      "file": "en-US/screenshots/01-gameplay.png",
+      "kind": "phone-screenshot",
+      "bytes": 201418,
+      "sha256": "5183ba8b865a2fbafe6ded92b6149b6b2da6e38decb659cdb701a4cf82d424ad",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "Defend 40 blocks. Tap an empty space with one finger to rebuild it."
+    },
+    {
+      "file": "en-US/screenshots/02-gameplay.png",
+      "kind": "phone-screenshot",
+      "bytes": 206901,
+      "sha256": "d3054155545ac2d41ef40b3caf6ce9ec3f06d36bfca6a19851abcf38d0e4a0c0",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "The CPU slot selects an effect automatically every seven seconds."
+    },
+    {
+      "file": "en-US/screenshots/03-gameplay.png",
+      "kind": "phone-screenshot",
+      "bytes": 238014,
+      "sha256": "5dd0c1a45a55667f37610723d308216076ce08eb74ad9b78837f14a495779455",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "Neon destruction and regeneration. The HUD shows time and survival seconds squared."
+    },
+    {
+      "file": "en-US/screenshots/04-gameplay.png",
+      "kind": "phone-screenshot",
+      "bytes": 176117,
+      "sha256": "3548b1e600aed33e72828e1e4bbc69a53577258f6883cbe427bcbe0a0b371882",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "Track CPU balls, speed, temporary effects and the countdown to the next slot outcome."
+    },
+    {
+      "file": "en-US/screenshots/05-one-finger-rule.png",
+      "kind": "phone-screenshot",
+      "bytes": 189683,
+      "sha256": "28cb8312705cb28b203bfe8b340da258b2160978501c64ddcca40ad9ce0cec03",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "NO CHEATING! Two or more fingers lock block regeneration for three seconds."
+    },
+    {
+      "file": "en-US/screenshots/06-result.png",
+      "kind": "phone-screenshot",
+      "bytes": 136457,
+      "sha256": "90c3de9cacbcce4ddc1c373bb141f6b2b0ffde2172f2d026e9a332631e4f6078",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "The result shows survival time, score, rebuilds and CPU slot effects."
+    },
+    {
+      "file": "en-US/screenshots/07-ranking.png",
+      "kind": "phone-screenshot",
+      "bytes": 117995,
+      "sha256": "33611389a888808cd6f17826ed8386cb189b9f656053040e195b9b3ca2d6515d",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "Your best 100 results are stored on this device. This recording contains one result."
+    },
+    {
+      "file": "en-US/screenshots/08-title.png",
+      "kind": "phone-screenshot",
+      "bytes": 288733,
+      "sha256": "862b46d978c1a8ca362046f8df8b889d2b252f8b1427de1a152cb7771dfb8910",
+      "width": 1080,
+      "height": 1920,
+      "color_type": 2,
+      "alt": "English title screen with play, instructions, rankings and settings."
+    },
+    {
+      "file": "en-US/preview.mp4",
+      "kind": "preview-video",
+      "bytes": 3262630,
+      "sha256": "bfd984c6ae3bf24b9035175ec01a79e096efbe30b8d874639b9cc6ed1167630b",
+      "width": 1080,
+      "height": 1920,
+      "duration_seconds": 25.266341,
+      "video": "H.264, 30 fps output",
+      "audio": "AAC, 48 kHz, stereo"
+    },
+    {
+      "file": "CREDITS.md",
+      "kind": "supporting-file",
+      "bytes": 2692,
+      "sha256": "01ca7c97a0c8beeab67d28810242ab08d62e2003fa0d0ebfdb46e0d6f08f198d"
+    },
+    {
+      "file": "console-settings.json",
+      "kind": "supporting-file",
+      "bytes": 978,
+      "sha256": "0bad50330e6cc26b01d836b8346f0f4a6d4d181219cf853feef7bf14cc80189f"
+    },
+    {
+      "file": "en-US/preview.srt",
+      "kind": "supporting-file",
+      "bytes": 348,
+      "sha256": "883595d7708d0885a13aec7b39c1ae0b90bca82b5fe137b2136b8428d80ebe95"
+    },
+    {
+      "file": "en-US/privacy-policy.txt",
+      "kind": "supporting-file",
+      "bytes": 2100,
+      "sha256": "884be070ecf57d457600d62a7a661524a933acde4b6d92d176316624492b6b8a"
+    },
+    {
+      "file": "en-US/provenance.json",
+      "kind": "supporting-file",
+      "bytes": 2016,
+      "sha256": "3db600e4c3326a707405fd04c260681c04c5716592d4e1e9bf17a90ea64c321d"
+    },
+    {
+      "file": "en-US/screenshot-alt-text.json",
+      "kind": "supporting-file",
+      "bytes": 1128,
+      "sha256": "85c6b5bb5f08c5e828931c178548c68c08eb4d3d01fa183eb6eef5642227067c"
+    },
+    {
+      "file": "en-US/youtube-description.txt",
+      "kind": "supporting-file",
+      "bytes": 230,
+      "sha256": "464d91bc6c7776283e66e3b435724068383a01cb8418d34550320e07f8ec901e"
+    },
+    {
+      "file": "en-US/youtube-title.txt",
+      "kind": "supporting-file",
+      "bytes": 37,
+      "sha256": "b0ce401bb6873d60464739626759a27ae5c282b9234a015d166c45e79dbc2e90"
+    },
+    {
+      "file": "index.html",
+      "kind": "supporting-file",
+      "bytes": 16511,
+      "sha256": "67e7d1abe73cf942839d452577fefd70c153d1ea032562c88f875a0b18bfeab6"
+    },
+    {
+      "file": "ja-JP/preview.srt",
+      "kind": "supporting-file",
+      "bytes": 470,
+      "sha256": "b20e6bc9037edd5c7348231f5c29ed4cd777a1c6203f74cc03a32e81ff6f0332"
+    },
+    {
+      "file": "ja-JP/privacy-policy.txt",
+      "kind": "supporting-file",
+      "bytes": 2609,
+      "sha256": "b09f235ca0ac4964db0c32a7b0b1b8a3b25328548fe0766cec57f61e8a9dd870"
+    },
+    {
+      "file": "ja-JP/provenance.json",
+      "kind": "supporting-file",
+      "bytes": 2022,
+      "sha256": "f58d9e9a335926c3e3c6c34103e46a31eb836c218c5c5fb069340dcec92caf81"
+    },
+    {
+      "file": "ja-JP/screenshot-alt-text.json",
+      "kind": "supporting-file",
+      "bytes": 1317,
+      "sha256": "f4b8e032a2a9ae4587d854f8ece5d707806685a756ab4ac630430614f81d0bc4"
+    },
+    {
+      "file": "ja-JP/youtube-description.txt",
+      "kind": "supporting-file",
+      "bytes": 288,
+      "sha256": "b58a55eabe6c6f3e90173cb0cb7a986fc3f0f777ba729fa2513f4d4ea3a465e4"
+    },
+    {
+      "file": "ja-JP/youtube-title.txt",
+      "kind": "supporting-file",
+      "bytes": 52,
+      "sha256": "01f92b546d819a91a3832a4e0c3da28e76a7006f9929f53d7cee6b2878a1a3f9"
+    },
+    {
+      "file": "source/en-US/feature-1024x500.svg",
+      "kind": "supporting-file",
+      "bytes": 42768,
+      "sha256": "2ea095f22608dc7c84c93fc18071d784d42bb5573302026db6c4c659dcd03b0a"
+    },
+    {
+      "file": "source/ja-JP/feature-1024x500.svg",
+      "kind": "supporting-file",
+      "bytes": 42790,
+      "sha256": "6629d0f95660736dd2c332d889ac483d207b4c647480edf52242fb58a7c6d6bf"
+    },
+    {
+      "file": "source/shared/icon-512.svg",
+      "kind": "supporting-file",
+      "bytes": 925,
+      "sha256": "acb3ac97301911104bf8a7fc8c32f215866588c3760b409f938421e17758465b"
+    }
+  ]
+}

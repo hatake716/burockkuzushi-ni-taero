@@ -3,6 +3,7 @@ package io.github.hatake716.taero
 import org.junit.Assert.*
 import org.junit.Test
 import java.math.BigDecimal
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.sqrt
 import kotlin.random.Random
@@ -290,6 +291,17 @@ class GameEngineTest {
     @Test fun nanosecondRemainderIsNotDiscardedBetweenFrames() {
         val e=game(); e.noSlots(); repeat(1234) { e.advance(123_457) }
         assertEquals(152_345_938,e.elapsedNanos); assertEquals(1523,e.ticks)
+    }
+
+    @Test fun scoreUsesTheSameFourDecimalPlacesOnNonJapanesePhones() {
+        val original=Locale.getDefault()
+        try {
+            for(tag in listOf("en-US","ja-JP","fr-FR","ar-EG")) {
+                Locale.setDefault(Locale.forLanguageTag(tag))
+                assertEquals("1,524,157.6527",ScoreFormat.score(12345678))
+                assertEquals("1234.5678",ScoreFormat.seconds(12345678))
+            }
+        } finally { Locale.setDefault(original) }
     }
 
     @Test fun rankingRetainsBest100DeduplicatesAndBreaksTiesStably() {

@@ -1,12 +1,17 @@
 package io.github.hatake716.taero
 
+import android.app.LocaleManager
 import android.graphics.PointF
+import android.os.LocaleList
 import android.os.SystemClock
 import android.view.InputDevice
 import android.view.MotionEvent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.filters.SdkSuppress
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Configurator
 import androidx.test.uiautomator.UiDevice
@@ -27,6 +32,7 @@ class GameUiTest {
     private val device = UiDevice.getInstance(instrumentation)
     private lateinit var scenario: ActivityScenario<MainActivity>
     private lateinit var activity: MainActivity
+    private fun s(id: Int, vararg args: Any) = activity.getString(id, *args)
     private fun onActivity(action: (MainActivity) -> Unit) { instrumentation.runOnMainSync { action(activity) } }
     private fun awaitScreen(expected: GameView.Screen) {
         val deadline=SystemClock.uptimeMillis()+2500
@@ -43,7 +49,17 @@ class GameUiTest {
         context.getSharedPreferences("taero.v1",0).edit().clear().commit()
         scenario = ActivityScenario.launch(MainActivity::class.java)
         scenario.onActivity { activity = it }
-        assertTrue(device.wait(Until.hasObject(By.text("神になって耐える  →")),5000))
+        val expectedLanguage=InstrumentationRegistry.getArguments().getString("expectedLanguage")
+        if (expectedLanguage != null) assertEquals(expectedLanguage,activity.resources.configuration.locales[0].language)
+        assertTrue(device.wait(Until.hasObject(By.text(s(R.string.start_game))),5000))
+        // Accessible nodes may appear before the new window accepts touch input.
+        val deadline=SystemClock.uptimeMillis()+2500
+        var focused=false
+        do {
+            onActivity { focused=it.hasWindowFocus() && it.gameView.isLaidOut }
+            if(!focused) SystemClock.sleep(30)
+        } while(!focused && SystemClock.uptimeMillis()<deadline)
+        assertTrue("The game window must accept input before tapping",focused)
     }
     @After fun cleanup() {
         if (::activity.isInitialized) onActivity { it.gameView.pauseGame() }
@@ -95,21 +111,23 @@ class GameUiTest {
 
     @Test fun titleGuideAndSettingsAreReachable() {
         shot("title")
-        device.findObject(By.text("遊び方")).click()
-        assertTrue(device.wait(Until.hasObject(By.text("神さまの遊び方")),2000))
-        device.findObject(By.text("わかった！")).click()
-        assertTrue(device.wait(Until.hasObject(By.text("音と演出")),2000))
-        device.findObject(By.text("音と演出")).click()
-        assertTrue(device.wait(Until.hasObject(By.text("BGM：電子音 × ピアノ × ドラム")),2000))
-        device.findObject(By.text("BGM：電子音 × ピアノ × ドラム")).click()
+        device.findObject(By.text(s(R.string.how_to_play))).click()
+        assertTrue(device.wait(Until.hasObject(By.text(s(R.string.guide_title))),2000))
+        shot("guide")
+        device.findObject(By.res("android:id/button1")).click()
+        assertTrue(device.wait(Until.hasObject(By.text(s(R.string.settings))),2000))
+        device.findObject(By.text(s(R.string.settings))).click()
+        assertTrue(device.wait(Until.hasObject(By.text(s(R.string.setting_music))),2000))
+        shot("settings")
+        device.findObject(By.text(s(R.string.setting_music))).click()
         val deadline=SystemClock.uptimeMillis()+1500
         while(GameStore(context).music && SystemClock.uptimeMillis()<deadline) SystemClock.sleep(30)
         assertFalse(GameStore(context).music)
-        device.findObject(By.text("閉じる")).click()
+        device.findObject(By.res("android:id/button1")).click()
     }
 
     @Test fun menuStartCountsDownThenRunsAndPauses() {
-        device.findObject(By.text("神になって耐える  →")).click()
+        device.findObject(By.text(s(R.string.start_game))).click()
         awaitScreen(GameView.Screen.COUNTDOWN)
         onActivity { assertEquals(GameView.Screen.COUNTDOWN,it.gameView.screen) }
         assertTrue(device.wait(Until.hasObject(By.text("Ⅱ")),5000))
@@ -239,13 +257,62 @@ class GameUiTest {
         assertEquals(3.0,saved.second.speedMultiplier,0.0);assertTrue(saved.second.locked)
         scenario.recreate()
         scenario.onActivity { activity = it }
-        assertTrue(device.wait(Until.hasObject(By.text("つづきから耐える  →")),3000))
-        device.findObject(By.text("つづきから耐える  →")).click()
+        assertTrue(device.wait(Until.hasObject(By.text(s(R.string.continue_run))),3000))
+        device.findObject(By.text(s(R.string.continue_run))).click()
         awaitScreen(GameView.Screen.COUNTDOWN)
         onActivity {
             assertEquals(saved.second.elapsedNanos,it.gameView.engine.elapsedNanos)
             assertEquals(saved.second.lockedUntil,it.gameView.engine.lockedUntil)
             assertFalse(it.gameView.engine.blocks[9]);assertEquals(GameView.Screen.COUNTDOWN,it.gameView.screen)
+        }
+    }
+
+    @Test @SdkSuppress(minSdkVersion=33)
+    fun languageChangeRecreatesUiAndKeepsRunAndRanking() {
+        val manager=context.getSystemService(LocaleManager::class.java)
+        val original=manager.applicationLocales
+        val target=if(activity.resources.configuration.locales[0].language=="ja") "en" else "ja"
+        val entry=ScoreEntry("locale-recreation",123456,1234,5,6)
+        GameStore(context).record(entry)
+        playingFixture()
+        onActivity {
+            it.gameView.engine.applyEffect(SlotEffect.ADD_FIVE_PIERCE)
+            it.gameView.engine.applyEffect(SlotEffect.TRIPLE_SPLIT)
+            it.gameView.pauseGame()
+        }
+        val saved=GameStore(context).loadRun()!!
+        val previous=activity
+        try {
+            manager.applicationLocales=LocaleList.forLanguageTags(target)
+            val deadline=SystemClock.uptimeMillis()+5000
+            var replacement: MainActivity?=null
+            do {
+                instrumentation.runOnMainSync {
+                    replacement=ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                        .filterIsInstance<MainActivity>().firstOrNull { it!==previous }
+                }
+                if(replacement==null) SystemClock.sleep(30)
+            } while(replacement==null && SystemClock.uptimeMillis()<deadline)
+            assertNotNull("Language change should recreate the activity",replacement)
+            activity=replacement!!
+            assertEquals(target,activity.resources.configuration.locales[0].language)
+            assertTrue(device.wait(Until.hasObject(By.text(s(R.string.continue_run))),2500))
+            assertEquals(listOf(entry),GameStore(context).rankings())
+            device.findObject(By.text(s(R.string.continue_run))).click()
+            awaitScreen(GameView.Screen.COUNTDOWN)
+            onActivity {
+                assertEquals(saved.second.elapsedNanos,it.gameView.engine.elapsedNanos)
+                assertEquals(saved.second.balls.size,it.gameView.engine.balls.size)
+                assertEquals(saved.second.pierceUntil,it.gameView.engine.pierceUntil)
+                assertEquals(saved.second.splitUntil,it.gameView.engine.splitUntil)
+                assertEquals(3.0,it.gameView.engine.speedMultiplier,0.0)
+            }
+        } finally {
+            onActivity { it.gameView.pauseGame() }
+            scenario.close()
+            manager.applicationLocales=original
+            scenario=ActivityScenario.launch(MainActivity::class.java)
+            scenario.onActivity { activity=it }
         }
     }
 
@@ -256,13 +323,13 @@ class GameUiTest {
             e.blocks.fill(false);e.blocks[32]=true
             e.balls += Ball(55.0,417.4,0.0,-1.0,1)
         }
-        assertTrue(device.wait(Until.hasObject(By.text("もう一度、耐える  →")),2500))
+        assertTrue(device.wait(Until.hasObject(By.text(s(R.string.play_again))),2500))
         onActivity { assertEquals(GameView.Screen.RESULT,it.gameView.screen);assertEquals(0,it.gameView.engine.remaining) }
         val list=GameStore(context).rankings()
         assertEquals(1,list.size);assertTrue(list[0].ticks>=123456);assertNull(GameStore(context).loadRun())
         shot("result")
-        device.findObject(By.text("ランキングを見る")).click()
-        assertTrue(device.wait(Until.hasObject(By.text("耐久ランキング  1 / 100")),1500))
+        device.findObject(By.text(s(R.string.view_rankings))).click()
+        assertTrue(device.wait(Until.hasObject(By.text(s(R.string.rankings_title, 1))),1500))
         shot("ranking")
         assertEquals(1,GameStore(context).rankings().size)
     }
@@ -272,8 +339,8 @@ class GameUiTest {
         for (i in 0..104) store.record(ScoreEntry("test-$i",i*10001L,1000L+i,1,2))
         val read=GameStore(context).rankings()
         assertEquals(100,read.size);assertEquals(104*10001L,read.first().ticks);assertEquals(5*10001L,read.last().ticks)
-        device.findObject(By.text("耐久ランキング  TOP 100")).click()
-        assertTrue(device.wait(Until.hasObject(By.text("耐久ランキング  100 / 100")),2000))
+        device.findObject(By.text(s(R.string.top_100))).click()
+        assertTrue(device.wait(Until.hasObject(By.text(s(R.string.rankings_title, 100))),2000))
         val scroll=device.findObject(By.scrollable(true))
         assertNotNull(scroll)
     }

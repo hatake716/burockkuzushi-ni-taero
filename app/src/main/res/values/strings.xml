@@ -1,13 +1,94 @@
 <resources>
-    <string name="app_name">ブロック崩しに耐えろ！</string>
-    <style name="BaseAppTheme" parent="android:style/Theme.Material.NoActionBar">
-        <item name="android:fontFamily">sans</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowActionModeOverlay">true</item>
-        <item name="android:colorAccent">#DFFF70</item>
-        <item name="android:windowBackground">#080C1C</item>
-        <item name="android:statusBarColor">#080C1C</item>
-        <item name="android:navigationBarColor">#080C1C</item>
-    </style>
-    <style name="AppTheme" parent="BaseAppTheme" />
+    <string name="app_name">"Survive Breakout!"</string>
+    <string name="game_description">"Survive Breakout! A reverse breakout survival game."</string>
+    <string name="start_announcement">"Starting in three seconds. Tap empty blocks with one finger."</string>
+    <string name="paused_announcement">"Paused"</string>
+    <string name="survive_announcement">"Survive!"</string>
+    <string name="cheat_announcement">"No cheating! Regeneration is locked for three seconds."</string>
+    <string name="finish_announcement">"Game over. %1$s points."</string>
+    <string name="title_line_one">"SURVIVE"</string>
+    <string name="title_line_two">"BREAKOUT!"</string>
+    <string name="title_tagline">"The CPU breaks them. You bring them back."</string>
+    <string name="title_hint">"One finger. Keep rebuilding. Defend the very last block."</string>
+    <string name="personal_best">"PERSONAL BEST"</string>
+    <string name="score_formula">"SCORE = survival seconds²"</string>
+    <string name="continue_run">"Continue surviving  →"</string>
+    <string name="new_game">"New game"</string>
+    <string name="rankings">"Rankings"</string>
+    <string name="start_game">"Become a god. Survive!  →"</string>
+    <string name="top_100">"Survival rankings  TOP 100"</string>
+    <string name="how_to_play">"How to play"</string>
+    <string name="settings">"Sound &amp; effects"</string>
+    <string name="survival_squared">"Survival seconds²"</string>
+    <string name="danger_hint">"Danger! Defend the last %1$d blocks!"</string>
+    <string name="restore_hint">"Tap an empty ＋ block to rebuild it"</string>
+    <string name="cheat_title">"NO CHEATING!"</string>
+    <string name="cheat_timer">"Regen locked  %1$s s"</string>
+    <string name="cheat_hint">"One finger only. The balls keep moving!"</string>
+    <string name="ball_count">"Balls %1$d"</string>
+    <string name="effect_timers">"Pierce %1$ss    Split %2$ss"</string>
+    <string name="run_counts">"Rebuilt %1$d  ·  Effects %2$d"</string>
+    <string name="effect_active">"ACTIVATED!"</string>
+    <string name="next_slot">"In %1$s s"</string>
+    <string name="slot_footer">"Fate spins every 7 seconds. Survive longer. Score higher."</string>
+    <string name="countdown_hint">"Rebuild empty blocks with one finger"</string>
+    <string name="countdown_end">"Lose all 40 blocks and the game ends"</string>
+    <string name="pause_title">"Take a breath."</string>
+    <string name="pause_hint">"Time and the slot are paused."</string>
+    <string name="resume_game">"Resume in 3 seconds  →"</string>
+    <string name="save_and_home">"Save &amp; return to title"</string>
+    <string name="result_title">"You held the line."</string>
+    <string name="elapsed_seconds">"%1$s s"</string>
+    <string name="save_error">"Could not save your score"</string>
+    <string name="result_rank">"Survival ranking  #%1$d"</string>
+    <string name="outside_top_100">"Keep going for the TOP 100!"</string>
+    <string name="result_counts">"Rebuilt %1$d   /   CPU effects %2$d"</string>
+    <string name="retry_save">"Try saving again"</string>
+    <string name="play_again">"Survive again  →"</string>
+    <string name="view_rankings">"View rankings"</string>
+    <string name="back_to_title">"Back to title"</string>
+    <string name="block_present">"Row %1$d, column %2$d: block intact"</string>
+    <string name="block_empty">"Row %1$d, column %2$d: tap to rebuild"</string>
+    <string name="guide_title">"How to play as a god"</string>
+    <string name="got_it">"Got it!"</string>
+    <string name="setting_music">"Music: synth × piano × drums"</string>
+    <string name="setting_sound">"Sound effects: neon fireworks"</string>
+    <string name="setting_vibration">"Haptic feedback"</string>
+    <string name="setting_reduced">"Reduce flashes and particles"</string>
+    <string name="close">"Close"</string>
+    <string name="rankings_empty">"No records yet.\nSet your first survival record!"</string>
+    <string name="ranking_entry">"%1$s    %2$s pt\n%3$s s  ·  Rebuilt %4$d\n%5$s"</string>
+    <string name="ranking_description">"Rank %1$d, %2$s points, %3$s seconds"</string>
+    <string name="rankings_title">"Survival rankings  %1$d / 100"</string>
+    <string name="ranking_date_pattern">"yyyy-MM-dd  HH:mm"</string>
+    <string name="slot_add_balls">"3 MORE BALLS!"</string>
+    <string name="slot_double">"DOUBLE SPEED!"</string>
+    <string name="slot_triple">"TRIPLE SPEED!"</string>
+    <string name="slot_pierce">"PIERCE FOR 5 SECONDS!"</string>
+    <string name="slot_split">"SPLIT FOR 5 SECONDS!"</string>
+    <string name="slot_reset_balls">"BACK TO ONE BALL!"</string>
+    <string name="slot_reset_speed">"SPEED RESET!"</string>
+    <string name="slot_five_pierce">"+5 BALLS &amp; 5s PIERCE!"</string>
+    <string name="slot_triple_split">"3× SPEED &amp; 5s SPLIT!"</string>
+    <string name="symbol_pierce">"PIERCE"</string>
+    <string name="symbol_split">"SPLIT"</string>
+    <string name="symbol_one_ball">"1 BALL"</string>
+    <string name="guide_body">"You are the god who rebuilds blocks. Keep the CPU from destroying all 40 for as long as you can!\n\n1. Tap an empty, dashed block with one finger. It rebuilds when you lift your finger. Dragging or holding does not rebuild blocks continuously.\n\n2. Touch with two or more fingers at once and you get a NO CHEATING! alert. Regeneration is locked for 3 seconds while the balls keep moving.\n\n3. The single-column slot at the bottom right stops every 7 seconds, automatically giving the CPU a random effect.\n\n+3 balls / double speed / triple speed / pierce for 5 seconds / split for 5 seconds / reset to one ball / reset speed\n\nCombo outcomes: +5 balls &amp; pierce for 5 seconds / triple speed &amp; split for 5 seconds. Both effects activate together. All 9 outcomes have equal odds.\n\nSpeed multipliers stack. Winning pierce or split again adds 5 seconds to its remaining time. While split is active, each ball becomes two whenever it hits a block.\n\n4. When the last block breaks, the game ends. Score = survival time in seconds squared. Your best 100 scores are saved on this phone.\n\nThe CPU paddle moves quickly from side to side. Balls it cannot reach fall out. If all balls fall out, one new ball launches.\n\nTime and effects freeze while paused or in the background. A 3-second countdown starts when you resume."</string>
+    <string name="reverse_breakout" translatable="false">"REVERSE BREAKOUT"</string>
+    <string name="neon_survival" translatable="false">"NEON SURVIVAL / 01"</string>
+    <string name="title_footer" translatable="false">"40 BLOCKS     ·     1 FINGER     ·     ENDLESS SCORE"</string>
+    <string name="survival_score" translatable="false">"SURVIVAL SCORE"</string>
+    <string name="time_label" translatable="false">"TIME"</string>
+    <string name="regen_field" translatable="false">"REGEN FIELD"</string>
+    <string name="regen_particle" translatable="false">"+ REGEN"</string>
+    <string name="cpu_auto" translatable="false">"CPU / AUTO"</string>
+    <string name="cpu_status" translatable="false">"CPU STATUS"</string>
+    <string name="cpu_slot" translatable="false">"CPU SLOT"</string>
+    <string name="paused_label" translatable="false">"PAUSED"</string>
+    <string name="all_destroyed" translatable="false">"ALL BLOCKS DESTROYED"</string>
+    <string name="symbol_add_three" translatable="false">"+3"</string>
+    <string name="symbol_add_five" translatable="false">"+5"</string>
+    <string name="symbol_double" translatable="false">"×2"</string>
+    <string name="symbol_triple" translatable="false">"×3"</string>
+    <string name="symbol_reset_speed" translatable="false">"×1"</string>
 </resources>

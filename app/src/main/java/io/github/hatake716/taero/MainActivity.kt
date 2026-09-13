@@ -1,6 +1,7 @@
 package io.github.hatake716.taero
 
 import android.app.AlertDialog
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.WindowManager
@@ -14,13 +15,16 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     lateinit var gameView: GameView
         private set
     private lateinit var store: GameStore
     private lateinit var audio: GameAudio
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.localizedContext(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,24 +57,15 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun showGuide() {
-        AlertDialog.Builder(this).setTitle("神さまの遊び方")
-            .setMessage("あなたはブロックを再生する神。CPUが全40個を壊しきるまで、ひたすら耐えよう！\n\n" +
-                "① 点線の空きブロックを１本の指でタップ。指を離すと１つ再生します。なぞり・長押しでの連続再生はできません。\n\n" +
-                "② 同時に２本以上の指で触ると「ズルはダメ！」。３秒間は再生できず、玉は動き続けます。\n\n" +
-                "③ 右下の１列スロットは７秒ごとに確定。CPUにランダムな効果が追加されます。\n\n" +
-                "＋３玉／速度×２／速度×３／５秒貫通／５秒分裂／玉数を１に／速度を初期値に\n\n" +
-                "複合の出目：＋５玉＆５秒貫通／速度×３＆５秒分裂。１回の当選で２つの効果が同時に発動します。全９種類、同じ確率で出現します。\n\n" +
-                "速度は掛け算で重複。貫通・分裂の再当選は残り時間に５秒加算。分裂は衝突した１玉が２玉になります。\n\n" +
-                "④ 最後の１個を破壊されると終了。スコア＝生存時間（秒）²。端末内に上位100件を保存します。\n\n" +
-                "CPUの棒は高速で左右に動きます。捕れない玉は落下し、全て落ちたら１玉を再発射します。\n\n" +
-                "一時停止・バックグラウンド中は時間も効果も停止。戻ったら３秒の合図で再開します。")
-            .setPositiveButton("わかった！", null).show()
+        AlertDialog.Builder(this).setTitle(R.string.guide_title)
+            .setMessage(R.string.guide_body)
+            .setPositiveButton(R.string.got_it, null).show()
     }
 
     private fun showSettings() {
-        val labels = arrayOf("BGM：電子音 × ピアノ × ドラム", "効果音：ネオン花火", "振動フィードバック", "光と粒子の演出を控えめに")
+        val labels = arrayOf(R.string.setting_music, R.string.setting_sound, R.string.setting_vibration, R.string.setting_reduced).map { getString(it) }.toTypedArray()
         val checked = booleanArrayOf(store.music, store.sound, store.vibration, store.reduced)
-        val dialog = AlertDialog.Builder(this).setTitle("音と演出")
+        val dialog = AlertDialog.Builder(this).setTitle(R.string.settings)
             .setMultiChoiceItems(labels, checked) { _, which, value ->
                 when (which) {
                     0 -> store.music = value
@@ -80,7 +75,7 @@ class MainActivity : ComponentActivity() {
                 }
                 audio.start()
                 gameView.invalidate()
-            }.setPositiveButton("閉じる", null).create()
+            }.setPositiveButton(R.string.close, null).create()
         dialog.setOnDismissListener { if (gameView.screen == GameView.Screen.PAUSED) audio.pause() }
         dialog.show()
     }
@@ -92,23 +87,23 @@ class MainActivity : ComponentActivity() {
             orientation = LinearLayout.VERTICAL
             setPadding((20*density).toInt(), (12*density).toInt(), (20*density).toInt(), (16*density).toInt())
         }
-        val date = SimpleDateFormat("yyyy/MM/dd  HH:mm", Locale.JAPAN)
+        val date = SimpleDateFormat(getString(R.string.ranking_date_pattern), resources.configuration.locales[0])
         if (entries.isEmpty()) layout.addView(TextView(this).apply {
-            text = "記録はまだありません。\n最初の耐久記録を刻もう！"; textSize = 18f
+            text = getString(R.string.rankings_empty); textSize = 18f
         })
         entries.forEachIndexed { index, e ->
             layout.addView(TextView(this).apply {
-                text = "${(index+1).toString().padStart(2, '0')}    ${ScoreFormat.score(e.ticks)} pt\n" +
-                    "${ScoreFormat.seconds(e.ticks)} 秒  ·  再生 ${e.restores} 回\n${date.format(Date(e.dateMillis))}"
+                text = getString(R.string.ranking_entry, (index+1).toString().padStart(2, '0'),
+                    ScoreFormat.score(e.ticks), ScoreFormat.seconds(e.ticks), e.restores, date.format(Date(e.dateMillis)))
                 textSize = 16f
                 setTextColor(if (index == 0) 0xffdfff70.toInt() else Color.WHITE)
                 setPadding(0, (12*density).toInt(), 0, (16*density).toInt())
-                contentDescription = "${index+1}位、${ScoreFormat.score(e.ticks)}ポイント、${ScoreFormat.seconds(e.ticks)}秒"
+                contentDescription = getString(R.string.ranking_description, index+1, ScoreFormat.score(e.ticks), ScoreFormat.seconds(e.ticks))
             })
         }
-        AlertDialog.Builder(this).setTitle("耐久ランキング  ${entries.size} / 100")
+        AlertDialog.Builder(this).setTitle(getString(R.string.rankings_title, entries.size))
             .setView(ScrollView(this).apply { addView(layout) })
-            .setPositiveButton("閉じる", null).show()
+            .setPositiveButton(R.string.close, null).show()
     }
 
     override fun onResume() { super.onResume(); if (::gameView.isInitialized) gameView.foreground() }

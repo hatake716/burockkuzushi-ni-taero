@@ -62,10 +62,12 @@ class GameView(context: Context, private val store: GameStore, private val audio
     private val particles = mutableListOf<Particle>()
     private val rings = mutableListOf<Ring>()
 
+    private fun s(id: Int, vararg args: Any): String = context.getString(id, *args)
+
     init {
         isFocusable = true
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
-        contentDescription = "ブロック崩しに耐えろ！ 逆視点の耐久ゲーム"
+        contentDescription = s(R.string.game_description)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -79,7 +81,7 @@ class GameView(context: Context, private val store: GameStore, private val audio
         store.saveRun(runId, engine)
         recordError = false; countdown = 3.0; screen = Screen.COUNTDOWN
         lastFrame = SystemClock.elapsedRealtimeNanos()
-        audio.start(); announce("３秒後にスタート。空いたブロックを１本の指でタップ")
+        audio.start(); announce(s(R.string.start_announcement))
     }
 
     fun pauseGame() {
@@ -88,7 +90,7 @@ class GameView(context: Context, private val store: GameStore, private val audio
         if (screen == Screen.RESULT) return
         screen = Screen.PAUSED; guard.cancel(); pendingButton = null
         store.saveRun(runId, engine); audio.pause(); invalidate()
-        announce("一時停止")
+        announce(s(R.string.paused_announcement))
     }
 
     fun goHome() {
@@ -135,7 +137,7 @@ class GameView(context: Context, private val store: GameStore, private val audio
         when (screen) {
             Screen.COUNTDOWN -> {
                 countdown -= dt
-                if (countdown <= 0) { screen = Screen.PLAYING; audio.play("slot"); announce("耐えろ！") }
+                if (countdown <= 0) { screen = Screen.PLAYING; audio.play("slot"); announce(s(R.string.survive_announcement)) }
             }
             Screen.PLAYING -> { engine.advance(nanos); processEvents() }
             else -> Unit
@@ -159,17 +161,17 @@ class GameView(context: Context, private val store: GameStore, private val audio
                 audio.play(if (event.restore) "restore" else "burst")
                 if (event.restore && store.vibration) performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             }
-            is GameEvent.Effect -> { audio.play("slot"); announce(event.effect.label) }
+            is GameEvent.Effect -> { audio.play("slot"); announce(s(event.effect.text.label)) }
             GameEvent.Cheat -> {
                 audio.play("cheat")
                 if (store.vibration) performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                announce("ズルはダメ！ ３秒間再生できません")
+                announce(s(R.string.cheat_announcement))
             }
             GameEvent.Bounce -> audio.play("bounce")
             GameEvent.Finish -> {
                 screen = Screen.RESULT
                 saveResult()
-                announce("ゲーム終了。${ScoreFormat.score(engine.ticks)}ポイント")
+                announce(s(R.string.finish_announcement, ScoreFormat.score(engine.ticks)))
             }
         }
         engine.events.clear()
@@ -262,11 +264,11 @@ class GameView(context: Context, private val store: GameStore, private val audio
     }
 
     private fun drawTitle(c: Canvas) {
-        text(c, "REVERSE BREAKOUT", 54f, 80f, 25f, cyan, bold)
-        text(c, "NEON SURVIVAL / 01", 54f, 119f, 18f, muted)
-        text(c, "ブロック崩しに", 50f, 262f, 65f, white, bold, maxWidth = 800f)
-        text(c, "耐えろ！", 44f, 382f, 116f, lime, bold)
-        text(c, "壊すのはCPU。よみがえらせるのは、あなた。", 54f, 450f, 26f, 0xffbcc9e2.toInt(), maxWidth = 792f)
+        text(c, s(R.string.reverse_breakout), 54f, 80f, 25f, cyan, bold)
+        text(c, s(R.string.neon_survival), 54f, 119f, 18f, muted)
+        text(c, s(R.string.title_line_one), 50f, 262f, 65f, white, bold, maxWidth = 800f)
+        text(c, s(R.string.title_line_two), 44f, 382f, 116f, lime, bold, maxWidth = 806f)
+        text(c, s(R.string.title_tagline), 54f, 450f, 26f, 0xffbcc9e2.toInt(), maxWidth = 792f)
         // Code-native hero artwork: the actual 8 x 5 grid, with a divine regeneration target.
         c.save(); c.translate(50f, 516f)
         for (i in 0 until 40) {
@@ -291,24 +293,24 @@ class GameView(context: Context, private val store: GameStore, private val audio
             paint.color = colors[i%5]; c.drawCircle(x.toFloat(), y.toFloat(), (i%3+2).toFloat(), paint)
         }
         c.restore()
-        text(c, "指１本で再生。最後の１個まで、あきらめるな。", 450f, 1190f, 25f, white, normal, Paint.Align.CENTER, 790f)
+        text(c, s(R.string.title_hint), 450f, 1190f, 25f, white, normal, Paint.Align.CENTER, 790f)
         panel(c, RectF(54f, 1230f, 846f, 1340f))
-        text(c, "自己ベスト", 80f, 1273f, 21f, muted)
+        text(c, s(R.string.personal_best), 80f, 1273f, 21f, muted)
         text(c, ScoreFormat.score(bestTicks), 820f, 1310f, 47f, cyan, digits, Paint.Align.RIGHT, 540f)
-        text(c, "SCORE = 生存秒数²", 80f, 1310f, 19f, muted)
+        text(c, s(R.string.score_formula), 80f, 1310f, 19f, muted)
         if (savedRun != null) {
-            button(c, 1, "つづきから耐える  →", 54f, 1370f, 792f, 100f, true) {
+            button(c, 1, s(R.string.continue_run), 54f, 1370f, 792f, 100f, true) {
                 savedRun?.let { runId = it.first; engine = it.second }; resumeGame()
             }
-            button(c, 6, "新しくはじめる", 54f, 1490f, 384f, 90f) { beginRun() }
-            button(c, 2, "ランキング", 460f, 1490f, 386f, 90f) { rankings() }
+            button(c, 6, s(R.string.new_game), 54f, 1490f, 384f, 90f) { beginRun() }
+            button(c, 2, s(R.string.rankings), 460f, 1490f, 386f, 90f) { rankings() }
         } else {
-            button(c, 1, "神になって耐える  →", 54f, 1370f, 792f, 108f, true) { beginRun() }
-            button(c, 2, "耐久ランキング  TOP 100", 54f, 1500f, 792f, 90f) { rankings() }
+            button(c, 1, s(R.string.start_game), 54f, 1370f, 792f, 108f, true) { beginRun() }
+            button(c, 2, s(R.string.top_100), 54f, 1500f, 792f, 90f) { rankings() }
         }
-        button(c, 3, "遊び方", 54f, 1610f, 384f, 82f) { guide() }
-        button(c, 4, "音と演出", 460f, 1610f, 386f, 82f) { settings() }
-        text(c, "40 BLOCKS     ·     1 FINGER     ·     ENDLESS SCORE", 450f, 1750f, 18f, muted, normal, Paint.Align.CENTER)
+        button(c, 3, s(R.string.how_to_play), 54f, 1610f, 384f, 82f) { guide() }
+        button(c, 4, s(R.string.settings), 460f, 1610f, 386f, 82f) { settings() }
+        text(c, s(R.string.title_footer), 450f, 1750f, 18f, muted, normal, Paint.Align.CENTER)
     }
 
     private fun drawBlock(c: Canvas, box: Box, index: Int, alive: Boolean, highlighted: Boolean = false) {
@@ -337,27 +339,27 @@ class GameView(context: Context, private val store: GameStore, private val audio
 
     private fun drawGame(c: Canvas) {
         val e = engine
-        text(c, "ブロック崩しに耐えろ！", 50f, 62f, 26f, white, bold)
+        text(c, s(R.string.app_name), 50f, 62f, 26f, white, bold)
         if (screen == Screen.PLAYING) button(c, 10, "Ⅱ", 744f, 22f, 106f, 70f) { pauseGame() }
-        text(c, "SURVIVAL SCORE", 50f, 120f, 19f, muted, bold)
+        text(c, s(R.string.survival_score), 50f, 120f, 19f, muted, bold)
         text(c, ScoreFormat.score(e.ticks), 45f, 218f, 94f, white, digits, maxWidth = 790f)
-        text(c, "TIME", 52f, 264f, 20f, muted, bold)
+        text(c, s(R.string.time_label), 52f, 264f, 20f, muted, bold)
         text(c, ScoreFormat.seconds(e.ticks) + " s", 128f, 269f, 35f, cyan, digits, maxWidth = 430f)
-        text(c, "生存秒数²", 845f, 265f, 21f, muted, normal, Paint.Align.RIGHT)
+        text(c, s(R.string.survival_squared), 845f, 265f, 21f, muted, normal, Paint.Align.RIGHT)
         val effectAge = (e.elapsedNanos-e.lastEffectNanos)/1e9
         if (e.lastEffect != null && effectAge < 2.8 && e.lastEffectNanos >= 0) {
             val color = effectColor(e.lastEffect!!)
             panel(c, RectF(50f, 298f, 850f, 390f), alpha(color, 28), color, 14f)
             drawEffectSymbol(c, e.lastEffect!!, 128f, 360f, 38f, 112f)
-            text(c, e.lastEffect!!.label, 218f, 354f, 38f, white, bold, maxWidth = 600f)
+            text(c, s(e.lastEffect!!.text.label), 218f, 354f, 38f, white, bold, maxWidth = 600f)
         } else {
-            text(c, if (e.remaining <= 8) "危険！ 最後の${e.remaining}個を守れ！" else "＋ の空きブロックをタップして再生", 450f, 352f, 28f,
+            text(c, if (e.remaining <= 8) s(R.string.danger_hint, e.remaining) else s(R.string.restore_hint), 450f, 352f, 28f,
                 if (e.remaining <= 8) pink else 0xffb7c6df.toInt(), bold, Paint.Align.CENTER, 780f)
         }
         panel(c, RectF(47f, 406f, 853f, 1466f), 0xff090f20.toInt(), if (e.remaining <= 8) pink else 0xff2b415e.toInt(), 22f)
         c.save(); c.translate(50f, 413f)
         // Field hit coordinates stay fixed even while the decorative explosions shake.
-        text(c, "REGEN FIELD", 16f, 39f, 18f, muted, bold)
+        text(c, s(R.string.regen_field), 16f, 39f, 18f, muted, bold)
         text(c, "${e.remaining} / 40", 784f, 42f, 25f, if (e.remaining <= 8) pink else cyan, digits, Paint.Align.RIGHT)
         for (i in 0 until 40) drawBlock(c, GameEngine.blockBox(i), i, e.blocks[i])
         for (y in 460..940 step 60) {
@@ -389,39 +391,39 @@ class GameView(context: Context, private val store: GameStore, private val audio
             val a = (1-r.age/.65f).coerceIn(0f, 1f)
             paint.style = Paint.Style.STROKE; paint.color = alpha(r.color, (180*a).toInt()); paint.strokeWidth = 3*a
             c.drawCircle(r.x, r.y, 12+r.age*120, paint); paint.style = Paint.Style.FILL
-            if (r.restore) text(c, "+ REGEN", r.x, r.y-r.age*60-18, 18f, alpha(lime,(255*a).toInt()), bold, Paint.Align.CENTER)
+            if (r.restore) text(c, s(R.string.regen_particle), r.x, r.y-r.age*60-18, 18f, alpha(lime,(255*a).toInt()), bold, Paint.Align.CENTER)
         }
         c.restore(); c.restore()
         val px = e.paddleX.toFloat()
         paint.color = alpha(cyan, 35); c.drawRoundRect(px-70, 967f, px+70, 997f, 15f, 15f, paint)
         panel(c, RectF(px-63, 974f, px+63, 986f), cyan, cyan, 6f)
-        text(c, "CPU / AUTO", px, 1024f, 16f, muted, bold, Paint.Align.CENTER)
+        text(c, s(R.string.cpu_auto), px, 1024f, 16f, muted, bold, Paint.Align.CENTER)
         c.restore()
         drawStatusAndSlot(c)
         if (e.locked && (screen == Screen.PLAYING || screen == Screen.COUNTDOWN)) {
             panel(c, RectF(76f, 870f, 824f, 1130f), 0xf21e1030.toInt(), pink, 24f)
-            text(c, "ズルはダメ！", 450f, 970f, 68f, pink, bold, Paint.Align.CENTER, 690f)
-            text(c, "再生禁止  ${"%.1f".format(java.util.Locale.US, (e.lockedUntil-e.elapsedNanos)/1e9)} 秒", 450f, 1035f, 35f, white, bold, Paint.Align.CENTER)
-            text(c, "指は１本だけ。玉は止まらない！", 450f, 1084f, 24f, 0xffd0b8d5.toInt(), normal, Paint.Align.CENTER)
+            text(c, s(R.string.cheat_title), 450f, 970f, 68f, pink, bold, Paint.Align.CENTER, 690f)
+            text(c, s(R.string.cheat_timer, "%.1f".format(java.util.Locale.US, (e.lockedUntil-e.elapsedNanos)/1e9)), 450f, 1035f, 35f, white, bold, Paint.Align.CENTER, 690f)
+            text(c, s(R.string.cheat_hint), 450f, 1084f, 24f, 0xffd0b8d5.toInt(), normal, Paint.Align.CENTER, 690f)
         }
     }
 
     private fun drawStatusAndSlot(c: Canvas) {
         val e = engine
         panel(c, RectF(50f, 1492f, 594f, 1730f))
-        text(c, "CPU STATUS", 75f, 1531f, 18f, muted, bold)
-        text(c, "玉 ${e.balls.size}", 75f, 1590f, 38f, cyan, digits, maxWidth = 225f)
+        text(c, s(R.string.cpu_status), 75f, 1531f, 18f, muted, bold)
+        text(c, s(R.string.ball_count, e.balls.size), 75f, 1590f, 38f, cyan, digits, maxWidth = 225f)
         val speed = if (e.speedMultiplier < 1e9) "×${e.speedMultiplier.toLong()}" else "×${"%.1e".format(java.util.Locale.US,e.speedMultiplier)}"
         text(c, speed, 560f, 1590f, 40f, pink, digits, Paint.Align.RIGHT, 245f)
         val p = max(0.0, (e.pierceUntil-e.elapsedNanos)/1e9)
         val s = max(0.0, (e.splitUntil-e.elapsedNanos)/1e9)
-        text(c, "貫通 ${"%.1f".format(java.util.Locale.US,p)}s    分裂 ${"%.1f".format(java.util.Locale.US,s)}s", 75f, 1645f, 26f,
+        text(c, s(R.string.effect_timers, "%.1f".format(java.util.Locale.US,p), "%.1f".format(java.util.Locale.US,s)), 75f, 1645f, 26f,
             if (p+s>0) lime else muted, bold, maxWidth = 486f)
-        text(c, "再生 ${e.restoredCount}回  ·  効果 ${e.slotCount}回", 75f, 1697f, 22f, muted, maxWidth = 485f)
+        text(c, s(R.string.run_counts, e.restoredCount, e.slotCount), 75f, 1697f, 22f, muted, maxWidth = 485f)
         val effectAge = (e.elapsedNanos-e.lastEffectNanos)/1e9
         val stopped = e.lastEffect != null && effectAge < 1.15 && e.lastEffectNanos >= 0
         panel(c, RectF(614f, 1492f, 850f, 1730f), 0xff17162d.toInt(), if (stopped) effectColor(e.lastEffect!!) else 0xff685487.toInt())
-        text(c, "CPU SLOT", 732f, 1531f, 18f, muted, bold, Paint.Align.CENTER)
+        text(c, s(R.string.cpu_slot), 732f, 1531f, 18f, muted, bold, Paint.Align.CENTER)
         c.save(); c.clipRect(627f, 1550f, 837f, 1673f)
         if (stopped) {
             drawEffectSymbol(c, e.lastEffect!!, 732f, 1634f, 60f, 195f)
@@ -436,9 +438,9 @@ class GameView(context: Context, private val store: GameStore, private val audio
         }
         c.restore()
         val next = max(0.0, (e.nextSlotNanos-e.elapsedNanos)/1e9)
-        text(c, if (stopped) "効果発動！" else "あと ${"%.1f".format(java.util.Locale.US,next)} s", 732f, 1700f, 23f,
+        text(c, if (stopped) s(R.string.effect_active) else s(R.string.next_slot, "%.1f".format(java.util.Locale.US,next)), 732f, 1700f, 23f,
             if (stopped) lime else white, bold, Paint.Align.CENTER)
-        text(c, "７秒ごとに運命が回る。長く耐えるほど、スコアは加速。", 450f, 1770f, 19f, muted, normal, Paint.Align.CENTER, 800f)
+        text(c, s(R.string.slot_footer), 450f, 1770f, 19f, muted, normal, Paint.Align.CENTER, 800f)
     }
 
     private fun dim(c: Canvas) { paint.color = 0xda060a18.toInt(); c.drawRect(0f,0f,900f,1800f,paint) }
@@ -446,45 +448,46 @@ class GameView(context: Context, private val store: GameStore, private val audio
     private fun drawCountdown(c: Canvas) {
         dim(c)
         text(c, "${ceil(countdown).toInt().coerceAtLeast(1)}", 450f, 900f, 220f, lime, digits, Paint.Align.CENTER)
-        text(c, "空いたブロックを、指１本で再生", 450f, 1000f, 34f, white, bold, Paint.Align.CENTER, 790f)
-        text(c, "全40個を壊されたら終了", 450f, 1060f, 26f, muted, normal, Paint.Align.CENTER)
+        text(c, s(R.string.countdown_hint), 450f, 1000f, 34f, white, bold, Paint.Align.CENTER, 790f)
+        text(c, s(R.string.countdown_end), 450f, 1060f, 26f, muted, normal, Paint.Align.CENTER, 790f)
     }
 
     private fun drawPause(c: Canvas) {
         dim(c)
-        text(c, "PAUSED", 450f, 604f, 26f, cyan, bold, Paint.Align.CENTER)
-        text(c, "ひと休み。", 450f, 704f, 70f, white, bold, Paint.Align.CENTER)
-        text(c, "時間も、スロットも、ここで停止中。", 450f, 779f, 27f, muted, normal, Paint.Align.CENTER)
-        button(c, 20, "３秒後に再開  →", 130f, 860f, 640f, 110f, true) { resumeGame() }
-        button(c, 21, "音と演出", 130f, 996f, 640f, 94f) { settings() }
-        button(c, 22, "保存してタイトルへ", 130f, 1116f, 640f, 94f) { goHome() }
+        text(c, s(R.string.paused_label), 450f, 604f, 26f, cyan, bold, Paint.Align.CENTER)
+        text(c, s(R.string.pause_title), 450f, 704f, 70f, white, bold, Paint.Align.CENTER)
+        text(c, s(R.string.pause_hint), 450f, 779f, 27f, muted, normal, Paint.Align.CENTER, 790f)
+        button(c, 20, s(R.string.resume_game), 130f, 860f, 640f, 110f, true) { resumeGame() }
+        button(c, 21, s(R.string.settings), 130f, 996f, 640f, 94f) { settings() }
+        button(c, 22, s(R.string.save_and_home), 130f, 1116f, 640f, 94f) { goHome() }
     }
 
     private fun drawResult(c: Canvas) {
         dim(c)
-        text(c, "ALL BLOCKS DESTROYED", 450f, 366f, 24f, pink, bold, Paint.Align.CENTER)
-        text(c, "よく、耐えた。", 450f, 466f, 69f, white, bold, Paint.Align.CENTER, 800f)
+        text(c, s(R.string.all_destroyed), 450f, 366f, 24f, pink, bold, Paint.Align.CENTER)
+        text(c, s(R.string.result_title), 450f, 466f, 69f, white, bold, Paint.Align.CENTER, 800f)
         panel(c, RectF(80f, 535f, 820f, 990f), 0xff101a31.toInt(), 0xff425577.toInt(), 26f)
-        text(c, "SURVIVAL SCORE", 450f, 600f, 23f, muted, bold, Paint.Align.CENTER)
+        text(c, s(R.string.survival_score), 450f, 600f, 23f, muted, bold, Paint.Align.CENTER)
         text(c, ScoreFormat.score(engine.ticks), 450f, 719f, 84f, lime, digits, Paint.Align.CENTER, 684f)
-        text(c, "${ScoreFormat.seconds(engine.ticks)} 秒", 450f, 793f, 40f, cyan, digits, Paint.Align.CENTER, 680f)
+        text(c, s(R.string.elapsed_seconds, ScoreFormat.seconds(engine.ticks)), 450f, 793f, 40f, cyan, digits, Paint.Align.CENTER, 680f)
         text(c, "${ScoreFormat.seconds(engine.ticks)}² = SCORE", 450f, 843f, 21f, muted, normal, Paint.Align.CENTER, 680f)
-        text(c, if (recordError) "保存できませんでした" else if (resultRank > 0) "耐久ランキング  第${resultRank}位" else "TOP 100 まで、あと少し！",
+        text(c, if (recordError) s(R.string.save_error) else if (resultRank > 0) s(R.string.result_rank, resultRank) else s(R.string.outside_top_100),
             450f, 921f, 34f, if (recordError) pink else white, bold, Paint.Align.CENTER, 680f)
-        text(c, "再生 ${engine.restoredCount}回     /     CPU効果 ${engine.slotCount}回", 450f, 1050f, 26f, muted, normal, Paint.Align.CENTER)
-        if (recordError) button(c, 35, "記録の保存を再試行", 130f, 1100f, 640f, 80f) { saveResult() }
-        button(c, 30, "もう一度、耐える  →", 100f, 1220f, 700f, 110f, true) { beginRun() }
-        button(c, 31, "ランキングを見る", 100f, 1360f, 700f, 96f) { rankings() }
-        button(c, 32, "タイトルへ", 100f, 1486f, 700f, 92f) { goHome() }
+        text(c, s(R.string.result_counts, engine.restoredCount, engine.slotCount), 450f, 1050f, 26f, muted, normal, Paint.Align.CENTER, 790f)
+        if (recordError) button(c, 35, s(R.string.retry_save), 130f, 1100f, 640f, 80f) { saveResult() }
+        button(c, 30, s(R.string.play_again), 100f, 1220f, 700f, 110f, true) { beginRun() }
+        button(c, 31, s(R.string.view_rankings), 100f, 1360f, 700f, 96f) { rankings() }
+        button(c, 32, s(R.string.back_to_title), 100f, 1486f, 700f, 92f) { goHome() }
     }
 
     private fun drawEffectSymbol(c: Canvas, effect: SlotEffect, x: Float, baseline: Float, size: Float, width: Float) {
         val color = effectColor(effect)
-        val secondary = effect.secondarySymbol
+        val copy = effect.text
+        val secondary = copy.secondary?.let { s(it) }
         if (secondary == null) {
-            text(c, effect.symbol, x, baseline, size, color, bold, Paint.Align.CENTER, width)
+            text(c, s(copy.symbol), x, baseline, size, color, bold, Paint.Align.CENTER, width)
         } else {
-            text(c, effect.symbol, x, baseline-size*.28f, size*.8f, color, bold, Paint.Align.CENTER, width)
+            text(c, s(copy.symbol), x, baseline-size*.28f, size*.8f, color, bold, Paint.Align.CENTER, width)
             text(c, secondary, x, baseline+size*.32f, size*.43f, color, bold, Paint.Align.CENTER, width)
         }
     }
@@ -549,7 +552,7 @@ class GameView(context: Context, private val store: GameStore, private val audio
             else if (screen == Screen.PLAYING && index in 0..39) {
                 val r = GameEngine.blockBox(index)
                 box = RectF(r.left.toFloat()+50,r.top.toFloat()+413,r.right.toFloat()+50,r.bottom.toFloat()+413)
-                label = "${index/8+1}行${index%8+1}列、" + if (engine.blocks[index]) "ブロックあり" else "タップで再生"
+                label = s(if (engine.blocks[index]) R.string.block_present else R.string.block_empty, index/8+1, index%8+1)
             } else return null
             val location = IntArray(2); getLocationOnScreen(location)
             return AccessibilityNodeInfo.obtain().apply {

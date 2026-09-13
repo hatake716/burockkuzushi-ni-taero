@@ -11,6 +11,19 @@
   <img src="docs/screenshots/result.png" width="250" alt="通常プレイの結果画面">
 </p>
 
+## 日本語・英語の自動切り替え
+
+端末の最優先言語が日本語なら日本語、それ以外なら英語で表示する。
+英語名は **Survive Breakout!**。タイトル・プレイ画面・全９種類のスロット・警告・遊び方・設定・ランキング・読み上げ説明まで対応。
+フランス語、日本語の順に登録されている端末も英語になる。Android 13以降で利用者がOS側のアプリ別言語を指定した場合は、その最優先言語に従う。
+言語を変えても途中のゲーム・ランキング・音の設定は引き継ぐ。時間とスコアは両言語とも小数点以下４桁で表示する。
+
+<p>
+  <img src="docs/screenshots/en-title.png" width="250" alt="Survive Breakout! English title screen">
+  <img src="docs/screenshots/en-slot.png" width="250" alt="English combined slot effect">
+  <img src="docs/screenshots/en-settings.png" width="250" alt="English sound and effects settings">
+</p>
+
 ## 遊び方
 
 - ブロックは横８×縦５の全40個。点線になった空きマスを、**１本の指でタップ**すると再生する。

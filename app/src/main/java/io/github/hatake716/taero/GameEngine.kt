@@ -4,19 +4,14 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 import kotlin.math.*
 import kotlin.random.Random
 
-enum class SlotEffect(val label: String, val symbol: String, val detail: String, val secondarySymbol: String? = null) {
-    ADD_BALLS("玉が３つ増える！", "+3", "現在の玉に３つ追加"),
-    SPEED_DOUBLE("スピード２倍！", "×2", "現在の速度を２倍に"),
-    SPEED_TRIPLE("スピード３倍！", "×3", "現在の速度を３倍に"),
-    PIERCE("貫通モード！", "貫通", "５秒間、ブロックを貫通"),
-    SPLIT("分裂フィーバー！", "分裂", "５秒間、衝突した玉が２つに"),
-    RESET_BALLS("玉数リセット！", "1玉", "玉を初期値の１つに戻す"),
-    RESET_SPEED("速度リセット！", "×1", "玉の速度を初期値に戻す"),
-    ADD_FIVE_PIERCE("玉＋５ ＆ ５秒貫通！", "+5", "玉を５つ追加し、５秒間すべての玉が貫通", "貫通"),
-    TRIPLE_SPLIT("速度３倍 ＆ ５秒分裂！", "×3", "現在の速度を３倍にし、５秒間衝突した玉が２つに", "分裂")
+enum class SlotEffect {
+    ADD_BALLS, SPEED_DOUBLE, SPEED_TRIPLE, PIERCE, SPLIT, RESET_BALLS, RESET_SPEED,
+    ADD_FIVE_PIERCE, TRIPLE_SPLIT
 }
 
 data class Ball(var x: Double, var y: Double, var dx: Double, var dy: Double, val id: Long)
@@ -319,7 +314,8 @@ class TapGuard {
 object ScoreFormat {
     fun seconds(ticks: Long): String = "${ticks / 10000}.${(ticks % 10000).toString().padStart(4, '0')}"
     fun exact(ticks: Long): BigDecimal = BigDecimal(BigInteger.valueOf(ticks).pow(2), 8)
-    fun score(ticks: Long): String = DecimalFormat("#,##0.0000").format(exact(ticks).setScale(4, RoundingMode.DOWN))
+    fun score(ticks: Long): String = DecimalFormat("#,##0.0000", DecimalFormatSymbols(Locale.US))
+        .format(exact(ticks).setScale(4, RoundingMode.DOWN))
 }
 
 data class ScoreEntry(val id: String, val ticks: Long, val dateMillis: Long, val restores: Int, val slots: Int)

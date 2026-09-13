@@ -1,5 +1,37 @@
 # 検証記録
 
+## 1.0.1 — 複合スロット追加
+
+検証日：2026-09-13。versionCode 2。パッケージは `io.github.hatake716.taero`。
+
+- 「玉＋５＆５秒貫通」「現在の速度×３＆５秒分裂」を追加。７秒ごとに全９種類から等確率で抽選。
+- JVMロジックテスト **34件成功**（失敗・エラー・スキップ０）。追加分は玉の加算・速度乗算、衝突での分裂、同種タイマー加算、５秒での失効、リセットとの独立性、９種類すべての７秒境界での抽選を検証。
+- Android 15 / API 35 / x86_64 エミュレーターで **12件成功**。追加２種類を実際のスロット確定処理で発動させ、通知・右下２段表示を撮影して目視確認。新しい出目と玉数・速度・残り時間が保存後にも復元されることを検証。
+- `testDebugUnitTest lintDebug lintRelease assembleDebug assembleRelease bundleRelease assembleDebugAndroidTest` がすべて成功。Debug / Release Lintは各エラー０・警告31。エミュレーターのクラッシュバッファに記録なし。
+
+表示確認用の画像は、テスト内で抽選結果と７秒直前の盤面を指定して撮影したもの。
+
+- [玉＋５＆５秒貫通](screenshots/slot-five-pierce.png)
+- [速度３倍＆５秒分裂](screenshots/slot-triple-split.png)
+
+### 実機への更新
+
+接続された Pixel 10a / Android 17 に `adb install --no-incremental -r` で1.0.0から1.0.1へ更新し、成功を確認。
+同じAndroid Debug鍵を使用。アンインストール・データ消去なし。初回インストール時刻は19:03:33のまま、更新時刻は19:16:09（JST）。
+起動後に `MainActivity` が最前面で動作することを確認。実機へのゲーム操作入力は行っていない。
+実機にインストールされたAPKとローカル配布APKのSHA-256が一致：
+
+```text
+cdd45d997e15affd81443e77091392b33af18b8538f1e277e6ad4aa393618cf7
+```
+
+開発用APKは `artifacts/1.0.1/taero-1.0.1-debug.apk`（Git管理外）。APK v2署名検証成功。
+Release APKとAABは生成済み、配布用署名は未設定。Play Consoleへのアップロード・公開は行っていない。
+
+---
+
+以下は初版1.0.0の検証時点の記録。実機への最新の配布状況は上記を参照。
+
 検証日：2026-09-13。バージョン1.0.0 / versionCode 1。
 パッケージ：`io.github.hatake716.taero`。
 

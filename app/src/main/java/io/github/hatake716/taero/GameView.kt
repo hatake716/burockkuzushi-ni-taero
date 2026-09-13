@@ -348,7 +348,7 @@ class GameView(context: Context, private val store: GameStore, private val audio
         if (e.lastEffect != null && effectAge < 2.8 && e.lastEffectNanos >= 0) {
             val color = effectColor(e.lastEffect!!)
             panel(c, RectF(50f, 298f, 850f, 390f), alpha(color, 28), color, 14f)
-            text(c, e.lastEffect!!.symbol, 75f, 360f, 38f, color, bold, maxWidth = 112f)
+            drawEffectSymbol(c, e.lastEffect!!, 128f, 360f, 38f, 112f)
             text(c, e.lastEffect!!.label, 218f, 354f, 38f, white, bold, maxWidth = 600f)
         } else {
             text(c, if (e.remaining <= 8) "危険！ 最後の${e.remaining}個を守れ！" else "＋ の空きブロックをタップして再生", 450f, 352f, 28f,
@@ -424,14 +424,14 @@ class GameView(context: Context, private val store: GameStore, private val audio
         text(c, "CPU SLOT", 732f, 1531f, 18f, muted, bold, Paint.Align.CENTER)
         c.save(); c.clipRect(627f, 1550f, 837f, 1673f)
         if (stopped) {
-            text(c, e.lastEffect!!.symbol, 732f, 1634f, 60f, effectColor(e.lastEffect!!), bold, Paint.Align.CENTER, 195f)
+            drawEffectSymbol(c, e.lastEffect!!, 732f, 1634f, 60f, 195f)
         } else {
             val pos = (e.elapsedNanos/1e9*12)
             val base = floor(pos).toInt()
             val shift = ((pos-floor(pos))*112).toFloat()
             for (i in -1..1) {
                 val effect = SlotEffect.entries[Math.floorMod(base+i, SlotEffect.entries.size)]
-                text(c, effect.symbol, 732f, 1635f+i*112-shift, 53f, effectColor(effect), bold, Paint.Align.CENTER, 190f)
+                drawEffectSymbol(c, effect, 732f, 1635f+i*112-shift, 53f, 190f)
             }
         }
         c.restore()
@@ -478,11 +478,24 @@ class GameView(context: Context, private val store: GameStore, private val audio
         button(c, 32, "タイトルへ", 100f, 1486f, 700f, 92f) { goHome() }
     }
 
+    private fun drawEffectSymbol(c: Canvas, effect: SlotEffect, x: Float, baseline: Float, size: Float, width: Float) {
+        val color = effectColor(effect)
+        val secondary = effect.secondarySymbol
+        if (secondary == null) {
+            text(c, effect.symbol, x, baseline, size, color, bold, Paint.Align.CENTER, width)
+        } else {
+            text(c, effect.symbol, x, baseline-size*.28f, size*.8f, color, bold, Paint.Align.CENTER, width)
+            text(c, secondary, x, baseline+size*.32f, size*.43f, color, bold, Paint.Align.CENTER, width)
+        }
+    }
+
     private fun effectColor(effect: SlotEffect): Int = when (effect) {
         SlotEffect.RESET_SPEED, SlotEffect.RESET_BALLS -> lime
         SlotEffect.SPEED_DOUBLE, SlotEffect.SPEED_TRIPLE, SlotEffect.PIERCE -> pink
         SlotEffect.ADD_BALLS -> cyan
         SlotEffect.SPLIT -> 0xffc788ff.toInt()
+        SlotEffect.ADD_FIVE_PIERCE -> 0xff67ffc2.toInt()
+        SlotEffect.TRIPLE_SPLIT -> 0xffffaa54.toInt()
     }
     private fun alpha(color: Int, alpha: Int): Int = (color and 0x00ffffff) or (alpha.coerceIn(0,255) shl 24)
 

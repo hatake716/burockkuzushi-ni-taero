@@ -18,6 +18,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 import kotlin.math.min
+import kotlin.random.Random
 
 @RunWith(AndroidJUnit4::class)
 class GameUiTest {
@@ -176,6 +177,56 @@ class GameUiTest {
         SystemClock.sleep(400)
         onActivity { assertEquals(1,it.gameView.engine.slotCount);assertNotNull(it.gameView.engine.lastEffect) }
         shot("slot-effect")
+    }
+
+    private fun combinedSlotFixture(effect: SlotEffect) {
+        playingFixture()
+        onActivity {
+            it.gameView.engine=GameEngine(object: Random() {
+                override fun nextBits(bitCount: Int)=0
+                override fun nextInt(until: Int)=effect.ordinal
+            }).apply {
+                elapsedNanos=6_900_000_000; nextSlotNanos=7_000_000_000
+                balls.clear(); balls += Ball(400.0,850.0,0.0,-1.0,0)
+                serveAt=Long.MAX_VALUE
+            }
+        }
+        val deadline=SystemClock.uptimeMillis()+2500
+        var selected=false
+        do {
+            onActivity { selected=it.gameView.engine.lastEffect==effect }
+            if(!selected) SystemClock.sleep(20)
+        } while(!selected && SystemClock.uptimeMillis()<deadline)
+        assertTrue(selected)
+        onActivity { assertEquals(1,it.gameView.engine.slotCount) }
+    }
+
+    @Test fun combinedFiveBallsAndPierceDisplaysAndSurvivesSaving() {
+        combinedSlotFixture(SlotEffect.ADD_FIVE_PIERCE)
+        onActivity {
+            assertEquals(6,it.gameView.engine.balls.size)
+            assertTrue(it.gameView.engine.piercing)
+        }
+        shot("slot-five-pierce")
+        onActivity { it.gameView.pauseGame() }
+        val restored=GameStore(context).loadRun()!!.second
+        assertEquals(SlotEffect.ADD_FIVE_PIERCE,restored.lastEffect)
+        assertEquals(6,restored.balls.size); assertTrue(restored.piercing)
+        assertEquals(12_000_000_000,restored.pierceUntil)
+    }
+
+    @Test fun combinedTripleSpeedAndSplitDisplaysAndSurvivesSaving() {
+        combinedSlotFixture(SlotEffect.TRIPLE_SPLIT)
+        onActivity {
+            assertEquals(3.0,it.gameView.engine.speedMultiplier,0.0)
+            assertTrue(it.gameView.engine.splitting)
+        }
+        shot("slot-triple-split")
+        onActivity { it.gameView.pauseGame() }
+        val restored=GameStore(context).loadRun()!!.second
+        assertEquals(SlotEffect.TRIPLE_SPLIT,restored.lastEffect)
+        assertEquals(3.0,restored.speedMultiplier,0.0); assertTrue(restored.splitting)
+        assertEquals(12_000_000_000,restored.splitUntil)
     }
 
     @Test fun restoreSavedGameAfterActivityRecreationIncludesPenaltyAndEffects() {

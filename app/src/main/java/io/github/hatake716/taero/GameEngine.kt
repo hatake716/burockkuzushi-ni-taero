@@ -7,14 +7,16 @@ import java.text.DecimalFormat
 import kotlin.math.*
 import kotlin.random.Random
 
-enum class SlotEffect(val label: String, val symbol: String, val detail: String) {
+enum class SlotEffect(val label: String, val symbol: String, val detail: String, val secondarySymbol: String? = null) {
     ADD_BALLS("玉が３つ増える！", "+3", "現在の玉に３つ追加"),
     SPEED_DOUBLE("スピード２倍！", "×2", "現在の速度を２倍に"),
     SPEED_TRIPLE("スピード３倍！", "×3", "現在の速度を３倍に"),
     PIERCE("貫通モード！", "貫通", "５秒間、ブロックを貫通"),
     SPLIT("分裂フィーバー！", "分裂", "５秒間、衝突した玉が２つに"),
     RESET_BALLS("玉数リセット！", "1玉", "玉を初期値の１つに戻す"),
-    RESET_SPEED("速度リセット！", "×1", "玉の速度を初期値に戻す")
+    RESET_SPEED("速度リセット！", "×1", "玉の速度を初期値に戻す"),
+    ADD_FIVE_PIERCE("玉＋５ ＆ ５秒貫通！", "+5", "玉を５つ追加し、５秒間すべての玉が貫通", "貫通"),
+    TRIPLE_SPLIT("速度３倍 ＆ ５秒分裂！", "×3", "現在の速度を３倍にし、５秒間衝突した玉が２つに", "分裂")
 }
 
 data class Ball(var x: Double, var y: Double, var dx: Double, var dy: Double, val id: Long)
@@ -131,6 +133,14 @@ class GameEngine(private val random: Random = Random.Default) {
                 while (balls.size > 1) balls.removeAt(balls.lastIndex)
             }
             SlotEffect.RESET_SPEED -> speedMultiplier = 1.0
+            SlotEffect.ADD_FIVE_PIERCE -> {
+                repeat(5) { serve() }
+                pierceUntil = max(elapsedNanos, pierceUntil) + EFFECT_NANOS
+            }
+            SlotEffect.TRIPLE_SPLIT -> {
+                speedMultiplier *= 3.0
+                splitUntil = max(elapsedNanos, splitUntil) + EFFECT_NANOS
+            }
         }
         lastEffect = effect
         lastEffectNanos = elapsedNanos

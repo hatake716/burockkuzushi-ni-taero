@@ -114,6 +114,83 @@ class GameEngineTest {
         e.advance(100_000); assertFalse(e.piercing); assertFalse(e.splitting)
     }
 
+    @Test fun fiveBallPierceAddsToExistingBallsAndPublishesOneCombinedEffect() {
+        val e=game(); e.applyEffect(SlotEffect.ADD_BALLS); e.applyEffect(SlotEffect.SPEED_DOUBLE)
+        val oldIds=e.balls.map { it.id }; val previousCount=e.slotCount; e.events.clear()
+        e.applyEffect(SlotEffect.ADD_FIVE_PIERCE)
+        assertEquals(9,e.balls.size); assertEquals(9,e.balls.map { it.id }.toSet().size)
+        assertTrue(e.balls.map { it.id }.containsAll(oldIds))
+        assertEquals(2.0,e.speedMultiplier,0.0); assertTrue(e.piercing)
+        assertEquals(5_000_000_000,e.pierceUntil)
+        assertEquals(previousCount+1,e.slotCount)
+        assertEquals(listOf(GameEvent.Effect(SlotEffect.ADD_FIVE_PIERCE)),e.events)
+    }
+
+    @Test fun tripleSplitMultipliesCurrentSpeedAndSplitsAtTheFirstCollision() {
+        val e=game(); e.noSlots(); e.applyEffect(SlotEffect.SPEED_DOUBLE)
+        e.balls.clear(); e.balls += Ball(55.0,417.4,0.0,-1.0,0)
+        val previousCount=e.slotCount; e.events.clear()
+        e.applyEffect(SlotEffect.TRIPLE_SPLIT)
+        assertEquals(6.0,e.speedMultiplier,0.0); assertTrue(e.splitting)
+        assertEquals(5_000_000_000,e.splitUntil); assertEquals(previousCount+1,e.slotCount)
+        assertEquals(listOf(GameEvent.Effect(SlotEffect.TRIPLE_SPLIT)),e.events)
+        e.advance(2_000_000)
+        assertEquals(1,e.destroyedCount); assertEquals(2,e.balls.size)
+    }
+
+    @Test fun combinedEffectsExtendExistingTimersAndStackPermanentParts() {
+        val e=game(); e.noSlots(); e.applyEffect(SlotEffect.PIERCE); e.applyEffect(SlotEffect.SPLIT)
+        e.balls.clear(); e.serveAt=Long.MAX_VALUE; e.advance(2_000_000_000)
+        e.applyEffect(SlotEffect.ADD_FIVE_PIERCE); e.applyEffect(SlotEffect.TRIPLE_SPLIT)
+        assertEquals(10_000_000_000,e.pierceUntil); assertEquals(10_000_000_000,e.splitUntil)
+        e.applyEffect(SlotEffect.ADD_FIVE_PIERCE); e.applyEffect(SlotEffect.TRIPLE_SPLIT)
+        assertEquals(10,e.balls.size); assertEquals(9.0,e.speedMultiplier,0.0)
+        assertEquals(15_000_000_000,e.pierceUntil); assertEquals(15_000_000_000,e.splitUntil)
+    }
+
+    @Test fun combinedTemporaryPartsExpireWithoutResettingBallCountOrSpeed() {
+        val e=game(); e.noSlots()
+        e.applyEffect(SlotEffect.ADD_FIVE_PIERCE); e.applyEffect(SlotEffect.TRIPLE_SPLIT)
+        // Keep the six balls away from blocks and the paddle while checking timer expiry.
+        e.balls.forEach { it.x=400.0; it.y=700.0; it.dx=1.0; it.dy=0.0 }
+        e.advance(4_999_900_000)
+        assertTrue(e.piercing); assertTrue(e.splitting)
+        e.advance(100_000)
+        assertFalse(e.piercing); assertFalse(e.splitting)
+        assertEquals(6,e.balls.size); assertEquals(3.0,e.speedMultiplier,0.0)
+    }
+
+    @Test fun resetOutcomesAlsoResetCombinedEffectsPermanentPartsIndependently() {
+        val e=game(); e.applyEffect(SlotEffect.ADD_FIVE_PIERCE); e.applyEffect(SlotEffect.TRIPLE_SPLIT)
+        e.applyEffect(SlotEffect.RESET_SPEED)
+        assertEquals(1.0,e.speedMultiplier,0.0); assertEquals(6,e.balls.size)
+        assertTrue(e.piercing); assertTrue(e.splitting)
+        e.applyEffect(SlotEffect.SPEED_DOUBLE); e.applyEffect(SlotEffect.RESET_BALLS)
+        assertEquals(1,e.balls.size); assertEquals(2.0,e.speedMultiplier,0.0)
+        assertTrue(e.piercing); assertTrue(e.splitting)
+    }
+
+    @Test fun everyOneOfTheNineOutcomesCanBeSelectedAtTheSevenSecondBoundary() {
+        assertEquals(9,SlotEffect.entries.size)
+        for(effect in SlotEffect.entries) {
+            val e=GameEngine(object: Random() {
+                override fun nextBits(bitCount: Int)=0
+                override fun nextInt(until: Int)=effect.ordinal.also { assertEquals(9,until) }
+            })
+            e.balls.clear(); e.serveAt=Long.MAX_VALUE
+            e.advance(6_999_900_000); assertEquals(0,e.slotCount)
+            e.advance(100_000)
+            assertEquals(effect,e.lastEffect); assertEquals(1,e.slotCount)
+            assertEquals(14_000_000_000,e.nextSlotNanos)
+            if(effect==SlotEffect.ADD_FIVE_PIERCE) {
+                assertEquals(5,e.balls.size); assertTrue(e.piercing)
+            }
+            if(effect==SlotEffect.TRIPLE_SPLIT) {
+                assertEquals(3.0,e.speedMultiplier,0.0); assertTrue(e.splitting)
+            }
+        }
+    }
+
     @Test fun piercingDestroysSuccessiveRowsWithoutReflecting() {
         val e=game(); e.noSlots(); e.balls.clear()
         e.balls += Ball(55.0,450.0,0.0,-1.0,0)

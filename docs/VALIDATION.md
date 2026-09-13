@@ -83,7 +83,7 @@ BGM＋５つのSEをAPKに同梱。端末スピーカーでの聴感・音量バ
 開発用APKのSHA-256：
 
 ```text
-2d98b643460c30c26eadd55810c850a6544fb75360b04ef999d9297343c590ce
+817b1057ca9a9c33f985ba4b6e14efd428a60600aa7010e1258c248edd649b48
 ```
 
 APK内のapplicationId・versionName・minSdk 26・targetSdk 36をaapt2で確認。

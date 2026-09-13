@@ -287,8 +287,8 @@
     {
       "file": "console-settings.json",
       "kind": "supporting-file",
-      "bytes": 978,
-      "sha256": "0bad50330e6cc26b01d836b8346f0f4a6d4d181219cf853feef7bf14cc80189f"
+      "bytes": 1058,
+      "sha256": "d6314d1c93328d1960752d5c2d0c22e2b1d0ca548a9d01a7374d178e6aab0ef9"
     },
     {
       "file": "en-US/preview.srt",
@@ -329,8 +329,8 @@
     {
       "file": "index.html",
       "kind": "supporting-file",
-      "bytes": 16511,
-      "sha256": "67e7d1abe73cf942839d452577fefd70c153d1ea032562c88f875a0b18bfeab6"
+      "bytes": 16618,
+      "sha256": "ff9eb6f3458e7b002ec61925efdddc1e7e4ea60e9b67d33272ae917628021efc"
     },
     {
       "file": "ja-JP/preview.srt",
@@ -367,6 +367,12 @@
       "kind": "supporting-file",
       "bytes": 52,
       "sha256": "01f92b546d819a91a3832a4e0c3da28e76a7006f9929f53d7cee6b2878a1a3f9"
+    },
+    {
+      "file": "publication.json",
+      "kind": "supporting-file",
+      "bytes": 806,
+      "sha256": "86e37c0d4a1851ae4e38fd852f07706ba5b6d4c4efa6b72e57f8d4cddf4ae889"
     },
     {
       "file": "source/en-US/feature-1024x500.svg",

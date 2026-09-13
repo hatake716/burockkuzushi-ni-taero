@@ -1,0 +1,22 @@
+{
+  "checked_at": "2026-09-13T11:11:37.675641+00:00",
+  "source_branch": "gh-pages",
+  "source_path": "/",
+  "commit": "ca8db16f527af836788a81a9a4c04191e90b26c8",
+  "https_enforced": true,
+  "privacy": {
+    "url": "https://hatake716.github.io/burockkuzushi-ni-taero/privacy/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 8724,
+    "sha256": "35e4652461bddfbb3da821b3f06240cfe213b15dbe4883ba280f462ab0244483",
+    "matches_local": true
+  },
+  "verification": "Unauthenticated HTTPS GET and exact comparison against local HTML; semantic policy text parity checked separately.",
+  "deployment": {
+    "id": 34753760511,
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/hatake716/burockkuzushi-ni-taero/actions/runs/34753760511"
+  }
+}

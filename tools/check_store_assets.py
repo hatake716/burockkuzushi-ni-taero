@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate Play material dimensions, text, media, links and public metadata."""
 from pathlib import Path
-import hashlib, json, struct, subprocess, xml.etree.ElementTree as ET
+import hashlib, json, re, struct, subprocess, xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 
 ROOT=Path(__file__).resolve().parents[1];STORE=ROOT/'docs/store'
@@ -15,6 +15,17 @@ class Links(HTMLParser):
     def handle_starttag(self,tag,attrs):
         for k,v in attrs:
             if k in ('href','src','poster') and v and not v.startswith(('https:','http:','mailto:','#')):self.links.append(v.split('#')[0])
+
+class PolicyText(HTMLParser):
+    def __init__(self):super().__init__();self.language=None;self.text={};self.h1=0
+    def handle_starttag(self,tag,attrs):
+        if tag=='h1':self.h1+=1
+        if tag=='article':
+            self.language=dict(attrs).get('lang');self.text[self.language]=[]
+    def handle_endtag(self,tag):
+        if tag=='article':self.language=None
+    def handle_data(self,data):
+        if self.language:self.text[self.language].append(data)
 
 def main():
     entries=[]
@@ -44,7 +55,16 @@ def main():
         assert policy.strip()==(folder/'privacy-policy.txt').read_text().strip(),f'{locale}: app and public policy differ'
     settings=json.loads((STORE/'console-settings.json').read_text());assert settings['support_email']=='acesmash@gmail.com' and settings['developer_name']=='hatake716'
     assert settings['version_code']==4 and settings['version_name']=='1.0.3' and settings['console_uploaded'] is False
-    assert settings['privacy_policy_url'] is None and all(v is None for v in settings['youtube_preview_urls'].values())
+    assert settings['privacy_policy_url'] in (None,'https://hatake716.github.io/burockkuzushi-ni-taero/privacy/')
+    assert all(v is None for v in settings['youtube_preview_urls'].values())
+    policy=PolicyText();policy.feed((ROOT/'docs/privacy/index.html').read_text());assert policy.h1==1
+    for language,locale in [('ja','ja-JP'),('en','en-US')]:
+        normalize=lambda s:re.sub(r'\s+',' ',s).strip()
+        assert normalize(' '.join(policy.text[language]))==normalize((STORE/locale/'privacy-policy.txt').read_text()),f'{locale}: public HTML policy differs'
+    if settings['privacy_policy_url']:
+        publication=json.loads((STORE/'publication.json').read_text())
+        assert publication['privacy']['status']==200 and publication['privacy']['matches_local']
+        assert publication['privacy']['sha256']==hashlib.sha256((ROOT/'docs/privacy/index.html').read_bytes()).hexdigest()
     for path in [STORE/'index.html',ROOT/'docs/privacy/index.html',ROOT/'docs/support/index.html']:
         parser=Links();parser.feed(path.read_text())
         for link in parser.links:

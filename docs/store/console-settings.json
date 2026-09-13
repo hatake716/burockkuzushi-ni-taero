@@ -20,7 +20,7 @@
   "app_access": "All features available without login, membership or geographic restriction",
   "data_collected": false,
   "data_shared": false,
-  "privacy_policy_url": null,
+  "privacy_policy_url": "https://hatake716.github.io/burockkuzushi-ni-taero/privacy/",
   "website_url": null,
   "youtube_preview_urls": {
     "ja-JP": null,
@@ -31,5 +31,5 @@
   "price": null,
   "distribution_countries": null,
   "console_uploaded": false,
-  "publication_status": "Materials prepared locally; not published to Google Play"
+  "publication_status": "Privacy policy published on GitHub Pages; Google Play and YouTube not published"
 }

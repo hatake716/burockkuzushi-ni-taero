@@ -105,3 +105,7 @@ adb -s emulator-5554 shell am instrument -w \
 
 通信・広告・アカウント登録はない。記録は端末内に保存される。
 詳細は [ゲーム仕様](docs/GAME_DESIGN.md)、[音源ノート](docs/AUDIO.md)、[検証記録](docs/VALIDATION.md) を参照。
+
+## プライバシーポリシー
+
+[日本語・Englishの公開ページ](https://hatake716.github.io/burockkuzushi-ni-taero/privacy/)。開発者：hatake716、連絡先：acesmash@gmail.com。GitHub Pagesの `gh-pages` ブランチから配信しています。公開と更新の手順は [Google Play素材ガイド](docs/PLAY_STORE.md) を参照してください。

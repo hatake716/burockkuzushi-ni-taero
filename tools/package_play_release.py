@@ -30,7 +30,8 @@ Google Playアップロード用：release/taero-1.0.3-play.aab
 公開用サポートページ：docs/support/index.html
 
 日本語・英語それぞれ8枚の実画面、1本の紹介動画、ストア文章があります。
-公開Web URLとYouTube URLは未発行です。Play Console送信・審査申請・公開は未実施です。
+公開プライバシーポリシー：https://hatake716.github.io/burockkuzushi-ni-taero/privacy/
+YouTube URLは未発行です。Play Console送信・審査申請・公開は未実施です。
 秘密鍵・パスワード・開発用APK・生の収録データはこのZIPに含みません。
 既存の開発版アプリに配布版APKを上書きできない場合は署名が異なるためです。
 既存データを消して回避しないでください。詳細は検証記録を参照してください。

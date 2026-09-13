@@ -30,7 +30,7 @@ Googleは端末内だけで処理する情報をデータセーフティの「�
 - 連絡先：acesmash@gmail.com
 - 公開用ファイル：[日本語・英語HTML](privacy/index.html)
 - アプリ内：タイトル → 音と演出 / Sound & effects → プライバシー / Privacy
-- ストアに入力するURL：未公開。HTTPSの閲覧可能なページを設置してから入力
+- ストアに入力するURL：[公開済みプライバシーポリシー](https://hatake716.github.io/burockkuzushi-ni-taero/privacy/)。2026-09-13にログイン不要のHTTPS 200と本文一致を確認
 
 データを収集しないアプリでも、公開されたポリシーとアプリ内のポリシー表示またはリンクが必要です。本バージョンにアプリ内表示を追加しました。[Googleのユーザーデータ方針](https://support.google.com/googleplay/android-developer/answer/10144311?hl=en)
 
@@ -65,4 +65,4 @@ English: Launch the app and tap “Become a god. Survive! →”. Tap and releas
 
 ## アカウント上で未決定・未実施
 
-プライバシーポリシー公開URL、任意のサポートページURL、YouTube動画URL、価格、配信国、対象年齢層、IARC回答・評価、開発者確認、該当アカウントのテスト要件、Playトラックへのアップロードと審査申請。`console-settings.json` の未確定欄を推測で埋めていません。
+任意のサポートページURL、YouTube動画URL、価格、配信国、対象年齢層、IARC回答・評価、開発者確認、該当アカウントのテスト要件、Playトラックへのアップロードと審査申請。`console-settings.json` の未確定欄を推測で埋めていません。

@@ -53,10 +53,14 @@ Play Consoleの動画欄にはMP4を直接入れず、YouTubeの動画URLを登�
 
 ## 公開前の操作
 
-1. [privacy/index.html](privacy/index.html) と [support/index.html](support/index.html) を、ログインなしで閲覧できるHTTPSサイトに設置します。プライバシーポリシーの公開URLをConsoleへ入力します。HTMLは作成済みですが、公開URLは未発行です。
+1. プライバシーポリシーは公開済みです。Consoleの該当欄に `https://hatake716.github.io/burockkuzushi-ni-taero/privacy/` を入力してください。[公開ページ](https://hatake716.github.io/burockkuzushi-ni-taero/privacy/)はログイン不要のHTTPS 200と本文一致を確認済みです。任意のサポートページは [support/index.html](support/index.html) を別途公開できます。
 2. 既存のアプリ登録がある場合はパッケージ名・アップロード証明書・versionCodeを照合します。新規登録ならこのAABのアップロード鍵を継続利用します。
 3. 日本語・英語のストア文章、共通アイコン、各言語の画像を登録します。動画を使用する場合は上記YouTube URLも登録します。
 4. [申告資料](PLAY_DECLARATIONS.md)を参照し、Consoleの実際の質問に回答します。対象年齢、配信国、価格、IARC回答と評価は開発者が決定する項目です。架空の評価や公開日を入力しません。
 5. `release/taero-1.0.3-play.aab` をテストトラックにアップロードし、Play経由の配信で動作を確認します。アカウントに表示される本人確認・テスト要件を完了してから製品版を申請します。
 
 画像・動画・文章は用意できていますが、公開URLの設定とアカウント上の申告・テスト・審査は別の作業です。公式情報は更新されるため、申請時点でもConsoleの表示を確認してください。
+
+## プライバシーポリシーの更新
+
+公開元は `gh-pages` ブランチの `/privacy/index.html` です。`main` の編集だけでは公開ページは更新されません。本文の元データは各言語の `privacy-policy.txt` とアプリ内文字列で一致させます。`python3 tools/generate_privacy_page.py` でHTMLを生成し、公開が必要なときに `python3 tools/publish_privacy_page.py` を実行します。Pagesのデプロイ完了後、公開URLの本文一致を確認してください。今回の公開記録は [publication.json](store/publication.json) にあります。

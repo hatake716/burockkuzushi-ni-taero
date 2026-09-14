@@ -28,6 +28,7 @@ class PolicyText(HTMLParser):
         if self.language:self.text[self.language].append(data)
 
 def main():
+    settings_version=json.loads((STORE/'console-settings.json').read_text())['version_name']
     entries=[]
     def add(path,kind,meta=None):
         entries.append({'file':str(path.relative_to(STORE)),'kind':kind,'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),**(meta or {})})
@@ -42,6 +43,8 @@ def main():
         for shot,alt in zip(screenshots,alts):
             assert alt['file']=='screenshots/'+shot.name;assert 0<len(alt['alt'])<=140
             add(shot,'phone-screenshot',{**png(shot,1080,1920,2),'alt':alt['alt']})
+        provenance=json.loads((folder/'provenance.json').read_text())
+        assert provenance['version']==settings_version
         video=folder/'preview.mp4'
         probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(video)]))
         v=next(s for s in probe['streams'] if s['codec_type']=='video');a=next(s for s in probe['streams'] if s['codec_type']=='audio')
@@ -54,7 +57,7 @@ def main():
         policy=next(e.text for e in ET.parse(strings).getroot() if e.get('name')=='privacy_body').strip('"').replace('\\n','\n').replace("\\'","'")
         assert policy.strip()==(folder/'privacy-policy.txt').read_text().strip(),f'{locale}: app and public policy differ'
     settings=json.loads((STORE/'console-settings.json').read_text());assert settings['support_email']=='acesmash@gmail.com' and settings['developer_name']=='hatake716'
-    assert settings['version_code']==4 and settings['version_name']=='1.0.3' and settings['console_uploaded'] is False
+    assert settings['version_code']==5 and settings['version_name']=='1.0.4' and settings['console_uploaded'] is False
     assert settings['privacy_policy_url'] in (None,'https://hatake716.github.io/burockkuzushi-ni-taero/privacy/')
     assert all(v is None for v in settings['youtube_preview_urls'].values())
     policy=PolicyText();policy.feed((ROOT/'docs/privacy/index.html').read_text());assert policy.h1==1
@@ -73,7 +76,7 @@ def main():
             assert target.is_file() or (target.is_dir() and (target/'index.html').is_file()),(path,link)
     for path in sorted(STORE.rglob('*')):
         if path.is_file() and path.name!='asset-manifest.json' and str(path.relative_to(STORE)) not in {e['file'] for e in entries}:add(path,'supporting-file')
-    result={'application_id':'io.github.hatake716.taero','version':'1.0.3','checked_on':'2026-09-13','screenshots':16,'videos':2,'entries':entries}
+    result={'application_id':'io.github.hatake716.taero','version':'1.0.4','checked_on':'2026-09-14','screenshots':16,'videos':2,'entries':entries}
     (STORE/'asset-manifest.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
     print(f'PASS: 16 screenshots, 2 videos, 3 graphics, 2 locale text limits, policy parity, links; {len(entries)} files hashed.')
 

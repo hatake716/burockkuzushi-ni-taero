@@ -1,7 +1,7 @@
 {
   "application_id": "io.github.hatake716.taero",
-  "version": "1.0.3",
-  "checked_on": "2026-09-13",
+  "version": "1.0.4",
+  "checked_on": "2026-09-14",
   "screenshots": 16,
   "videos": 2,
   "entries": [
@@ -25,32 +25,32 @@
     {
       "file": "ja-JP/short-description.txt",
       "kind": "store-copy",
-      "bytes": 159,
-      "sha256": "dc22d1434e46615b771f76d547033033133182a235379cd71c33246ccba6fb5f",
-      "characters": 56,
+      "bytes": 108,
+      "sha256": "400707bf52ee5ed894a036045cf4202ad9e4e05e919e6c7c780014dc1766dbb5",
+      "characters": 39,
       "limit": 80
     },
     {
       "file": "ja-JP/full-description.txt",
       "kind": "store-copy",
-      "bytes": 2797,
-      "sha256": "c884a07d4ef8386262e7030136b02e4be8c6839d7bd2569e08115026e9d97783",
-      "characters": 989,
+      "bytes": 2833,
+      "sha256": "b7555e438d7383f2d80cdbb9af5bfe958d1c960a3c5f9ec09fc35ddcb844694b",
+      "characters": 1001,
       "limit": 4000
     },
     {
       "file": "ja-JP/release-notes.txt",
       "kind": "store-copy",
-      "bytes": 274,
-      "sha256": "52d776735c7374a7f807a37ec67959f4612edb528f92f78f6e177627d7f79855",
-      "characters": 95,
+      "bytes": 214,
+      "sha256": "3dd8db2d0ff2ab0ba3015d02635cadc791582e602e45b999eac1c6058a521d6d",
+      "characters": 71,
       "limit": 500
     },
     {
       "file": "ja-JP/feature-1024x500.png",
       "kind": "feature",
-      "bytes": 184019,
-      "sha256": "a49dd516c4cc4e6b8e406945ed1fe9f4d2158b0f4689d00f5d84b1414172e863",
+      "bytes": 173841,
+      "sha256": "9af42acd549448543af4553adf511b325e8e5e3229cf9054352ade63bcf680b9",
       "width": 1024,
       "height": 500,
       "color_type": 2
@@ -58,8 +58,8 @@
     {
       "file": "ja-JP/screenshots/01-gameplay.png",
       "kind": "phone-screenshot",
-      "bytes": 209214,
-      "sha256": "5b73ad52ca4669814ba3b28dac6af99a20383fffa0b5bdd5eea274dbc5d9a7f7",
+      "bytes": 179412,
+      "sha256": "4cd1486386a24ea12ea1e2ffa1875ca272b30613b096a9d307d55237d37f4ec3",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -68,8 +68,8 @@
     {
       "file": "ja-JP/screenshots/02-gameplay.png",
       "kind": "phone-screenshot",
-      "bytes": 211374,
-      "sha256": "cb2e17014a87b86499e0b9446f0a8c8f31080317ef8ba3070739152170a7c2b9",
+      "bytes": 184779,
+      "sha256": "a75b7d8c8068ad02fdf1d1b8efb3525844868d806835e78e27a1b6923a3f5fe9",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -78,8 +78,8 @@
     {
       "file": "ja-JP/screenshots/03-gameplay.png",
       "kind": "phone-screenshot",
-      "bytes": 211320,
-      "sha256": "893798d72961c9187afa8f2badc33706f90932135121ee98360044ed2b910691",
+      "bytes": 185049,
+      "sha256": "232ff0e9668552e685ca4d9080b5a1fc1a1399507716e3f5356020efe05aafd5",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -88,8 +88,8 @@
     {
       "file": "ja-JP/screenshots/04-gameplay.png",
       "kind": "phone-screenshot",
-      "bytes": 210765,
-      "sha256": "8601517d7d98e33dd187bc58d524d9439840f9a9235ae183830d2e702980b89f",
+      "bytes": 197742,
+      "sha256": "3873633b43b5d294ed44861f2f6dc48a2bdf03d3b2fd107011aa85a9b3c260a5",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -98,8 +98,8 @@
     {
       "file": "ja-JP/screenshots/05-one-finger-rule.png",
       "kind": "phone-screenshot",
-      "bytes": 227367,
-      "sha256": "94df4fef52815a29f8282bba6870149cbb9242c058c39efdfc356575b7298be1",
+      "bytes": 198262,
+      "sha256": "eb07b8ef34c343167a27cd7d6cb48662f5603b1481c98d2214f8fcfbcd69e517",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -108,8 +108,8 @@
     {
       "file": "ja-JP/screenshots/06-result.png",
       "kind": "phone-screenshot",
-      "bytes": 147343,
-      "sha256": "04abdb9e85a117dd703285c4d465331874856d8a60fb3a25a2c5222ad974c812",
+      "bytes": 121626,
+      "sha256": "b94c0197b97a00558e9043ac1cb8aa578e834e5d1b684efd29027107c952e459",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -118,8 +118,8 @@
     {
       "file": "ja-JP/screenshots/07-ranking.png",
       "kind": "phone-screenshot",
-      "bytes": 122718,
-      "sha256": "96548b6565b22277491364c24d1494eebec4f67c29d6cafdd32e596693c23536",
+      "bytes": 91797,
+      "sha256": "673000a98527e6a74c26a81e6d73f812e58977b02f6514a5e938cd7886f6a98c",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -128,8 +128,8 @@
     {
       "file": "ja-JP/screenshots/08-title.png",
       "kind": "phone-screenshot",
-      "bytes": 295749,
-      "sha256": "0860db3f3dd3facb0e80fac771b25344d3bb6f6597b1148bdd693ee2bdd29000",
+      "bytes": 259657,
+      "sha256": "6351632cfd9d5e6c614fc66d1b0c86c530810181f5671627e1b3df7b21828834",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -138,11 +138,11 @@
     {
       "file": "ja-JP/preview.mp4",
       "kind": "preview-video",
-      "bytes": 4610036,
-      "sha256": "fc832ef8475552d6bdf2305e45e046e8c77e463d27047660fa784e7e499eec39",
+      "bytes": 2826912,
+      "sha256": "bf377ab12fc81775e33e383bc4ac7e93292a0703796fedb8d99cffcf252560e1",
       "width": 1080,
       "height": 1920,
-      "duration_seconds": 36.635,
+      "duration_seconds": 21.503,
       "video": "H.264, 30 fps output",
       "audio": "AAC, 48 kHz, stereo"
     },
@@ -165,24 +165,24 @@
     {
       "file": "en-US/full-description.txt",
       "kind": "store-copy",
-      "bytes": 2215,
-      "sha256": "e132da2127e0c8d4725e58ab3bd6e9717afdeccadecd65c1ba4c68278a7c5a69",
-      "characters": 2214,
+      "bytes": 2257,
+      "sha256": "b21545235c6eb9211882b9f8cc38fb4bfbeb438a41f1f41d0a590693b01c8f8a",
+      "characters": 2256,
       "limit": 4000
     },
     {
       "file": "en-US/release-notes.txt",
       "kind": "store-copy",
-      "bytes": 156,
-      "sha256": "ff82e2d540717acd0876aee510d4a8ddddf5e87479ff7419dc80d41be4ce9593",
-      "characters": 155,
+      "bytes": 154,
+      "sha256": "55220fbe92c98b36eadd17f23cd7f31bffb0ee786ba49abf06cfa18b536cccab",
+      "characters": 153,
       "limit": 500
     },
     {
       "file": "en-US/feature-1024x500.png",
       "kind": "feature",
-      "bytes": 184478,
-      "sha256": "e2d87596230abd5143a3f2edecc1e3ce61d5c02f420005d18d7c04b5c9f3c5b7",
+      "bytes": 172918,
+      "sha256": "b0f2b1d409388f166d0909ccd10faa62947c1984ce22b8f6716be3d95e389bd5",
       "width": 1024,
       "height": 500,
       "color_type": 2
@@ -190,8 +190,8 @@
     {
       "file": "en-US/screenshots/01-gameplay.png",
       "kind": "phone-screenshot",
-      "bytes": 201418,
-      "sha256": "5183ba8b865a2fbafe6ded92b6149b6b2da6e38decb659cdb701a4cf82d424ad",
+      "bytes": 169785,
+      "sha256": "a5297423bb2bab7234843834944ddc10935447eab95db698a5ea79655bc07464",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -200,8 +200,8 @@
     {
       "file": "en-US/screenshots/02-gameplay.png",
       "kind": "phone-screenshot",
-      "bytes": 206901,
-      "sha256": "d3054155545ac2d41ef40b3caf6ce9ec3f06d36bfca6a19851abcf38d0e4a0c0",
+      "bytes": 169095,
+      "sha256": "a8898520d1ced5a0b47a75b0e6c6c1fbf506eeb88a2b23df3c6f7b98fdb128fc",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -210,8 +210,8 @@
     {
       "file": "en-US/screenshots/03-gameplay.png",
       "kind": "phone-screenshot",
-      "bytes": 238014,
-      "sha256": "5dd0c1a45a55667f37610723d308216076ce08eb74ad9b78837f14a495779455",
+      "bytes": 170860,
+      "sha256": "6b8ff85749a869319f826c51538dd44e5021b382f3417d1c8c5e25f6ba7def92",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -220,8 +220,8 @@
     {
       "file": "en-US/screenshots/04-gameplay.png",
       "kind": "phone-screenshot",
-      "bytes": 176117,
-      "sha256": "3548b1e600aed33e72828e1e4bbc69a53577258f6883cbe427bcbe0a0b371882",
+      "bytes": 171919,
+      "sha256": "25fef90510ceeabc034dd9176388cd5f29fd734773a0d1249b2e149cb353defe",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -230,8 +230,8 @@
     {
       "file": "en-US/screenshots/05-one-finger-rule.png",
       "kind": "phone-screenshot",
-      "bytes": 189683,
-      "sha256": "28cb8312705cb28b203bfe8b340da258b2160978501c64ddcca40ad9ce0cec03",
+      "bytes": 183698,
+      "sha256": "3dce5be7ba389f42ceb3bb901572ddabe395e60c9147b2991fb94c2212b7c76c",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -240,8 +240,8 @@
     {
       "file": "en-US/screenshots/06-result.png",
       "kind": "phone-screenshot",
-      "bytes": 136457,
-      "sha256": "90c3de9cacbcce4ddc1c373bb141f6b2b0ffde2172f2d026e9a332631e4f6078",
+      "bytes": 111643,
+      "sha256": "530c726fe319dc4756a9999cb2da3b35cb7c24088adf23cdbc75c7fe11d5418a",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -250,8 +250,8 @@
     {
       "file": "en-US/screenshots/07-ranking.png",
       "kind": "phone-screenshot",
-      "bytes": 117995,
-      "sha256": "33611389a888808cd6f17826ed8386cb189b9f656053040e195b9b3ca2d6515d",
+      "bytes": 82091,
+      "sha256": "87dc1e1ee6b16d6b81194e73d0707de72e09688f858eae801a572de3ee4892a7",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -260,8 +260,8 @@
     {
       "file": "en-US/screenshots/08-title.png",
       "kind": "phone-screenshot",
-      "bytes": 288733,
-      "sha256": "862b46d978c1a8ca362046f8df8b889d2b252f8b1427de1a152cb7771dfb8910",
+      "bytes": 248358,
+      "sha256": "6b09fcee67d971f9d12ae4f2fa5e8dfd41dd2fe214a6f30dfaf04d15a000c158",
       "width": 1080,
       "height": 1920,
       "color_type": 2,
@@ -270,31 +270,31 @@
     {
       "file": "en-US/preview.mp4",
       "kind": "preview-video",
-      "bytes": 3262630,
-      "sha256": "bfd984c6ae3bf24b9035175ec01a79e096efbe30b8d874639b9cc6ed1167630b",
+      "bytes": 2838939,
+      "sha256": "c7e81d7afcea21dde3a6ce3d2fdede63cd66d15e5a4e58e61800e27af24e109e",
       "width": 1080,
       "height": 1920,
-      "duration_seconds": 25.266341,
+      "duration_seconds": 24.745,
       "video": "H.264, 30 fps output",
       "audio": "AAC, 48 kHz, stereo"
     },
     {
       "file": "CREDITS.md",
       "kind": "supporting-file",
-      "bytes": 2692,
-      "sha256": "01ca7c97a0c8beeab67d28810242ab08d62e2003fa0d0ebfdb46e0d6f08f198d"
+      "bytes": 2535,
+      "sha256": "4d426f2176280fd223129e31efc4b540cd767362a404ffdf17c665fe05938704"
     },
     {
       "file": "console-settings.json",
       "kind": "supporting-file",
       "bytes": 1058,
-      "sha256": "d6314d1c93328d1960752d5c2d0c22e2b1d0ca548a9d01a7374d178e6aab0ef9"
+      "sha256": "50e15984c990318c43d69fe7187fa507239c24956ce367f9f974f49d21b31194"
     },
     {
       "file": "en-US/preview.srt",
       "kind": "supporting-file",
       "bytes": 348,
-      "sha256": "883595d7708d0885a13aec7b39c1ae0b90bca82b5fe137b2136b8428d80ebe95"
+      "sha256": "c5c82ef3b0d01440037a86fc966ffa47e518088e3a6bdfdf632a3211262d220e"
     },
     {
       "file": "en-US/privacy-policy.txt",
@@ -305,8 +305,8 @@
     {
       "file": "en-US/provenance.json",
       "kind": "supporting-file",
-      "bytes": 2016,
-      "sha256": "3db600e4c3326a707405fd04c260681c04c5716592d4e1e9bf17a90ea64c321d"
+      "bytes": 2073,
+      "sha256": "af093c0aeeb3414762db1f1e13ebf24131e08e78f2ae10d9497f35d63ccd6aaf"
     },
     {
       "file": "en-US/screenshot-alt-text.json",
@@ -329,14 +329,14 @@
     {
       "file": "index.html",
       "kind": "supporting-file",
-      "bytes": 16618,
-      "sha256": "ff9eb6f3458e7b002ec61925efdddc1e7e4ea60e9b67d33272ae917628021efc"
+      "bytes": 16584,
+      "sha256": "7d9e67b2d23ed031732dc3f0d69332f212324dbb3cd2637f808cad24aef17033"
     },
     {
       "file": "ja-JP/preview.srt",
       "kind": "supporting-file",
-      "bytes": 470,
-      "sha256": "b20e6bc9037edd5c7348231f5c29ed4cd777a1c6203f74cc03a32e81ff6f0332"
+      "bytes": 391,
+      "sha256": "808cb86a52155356a98c35404ac8aab54ea461ebaffabdd8df40de67448158c5"
     },
     {
       "file": "ja-JP/privacy-policy.txt",
@@ -347,8 +347,8 @@
     {
       "file": "ja-JP/provenance.json",
       "kind": "supporting-file",
-      "bytes": 2022,
-      "sha256": "f58d9e9a335926c3e3c6c34103e46a31eb836c218c5c5fb069340dcec92caf81"
+      "bytes": 2071,
+      "sha256": "b81be14eeef613e8f6e18b3e0b130dd273cbfff35600fe8f982d7c2e3f514b04"
     },
     {
       "file": "ja-JP/screenshot-alt-text.json",
@@ -377,14 +377,14 @@
     {
       "file": "source/en-US/feature-1024x500.svg",
       "kind": "supporting-file",
-      "bytes": 42768,
-      "sha256": "2ea095f22608dc7c84c93fc18071d784d42bb5573302026db6c4c659dcd03b0a"
+      "bytes": 42618,
+      "sha256": "55559cef140b72bb1703a28ba71acab1b3ea36e1964f5631758f83e97293096b"
     },
     {
       "file": "source/ja-JP/feature-1024x500.svg",
       "kind": "supporting-file",
-      "bytes": 42790,
-      "sha256": "6629d0f95660736dd2c332d889ac483d207b4c647480edf52242fb58a7c6d6bf"
+      "bytes": 42640,
+      "sha256": "f7b0bc50d17cb4de793f2d7ee73678571f4ba6a44c4dc920fbc75f6b4317b0eb"
     },
     {
       "file": "source/shared/icon-512.svg",

@@ -29,8 +29,8 @@ Your score is survival time in seconds squared: 10 seconds earns 100 points, 30 
 
 Your best 100 completed runs are saved in a ranking on this device. Keep chasing your own record.
 
-NEON FIREWORKS, ORIGINAL MUSIC
-Every shattered block bursts into neon particles with an electronic sound effect. An original soundtrack blends synth, piano and drums as the arena gets more intense.
+PIXEL LETTERING, NEON FIREWORKS
+Retro pixel lettering frames the action. Every shattered block bursts into neon particles with an electronic sound effect. An original soundtrack blends synth, piano and drums as the arena gets more intense.
 
 PLAY AT YOUR OWN PACE
 - Works offline

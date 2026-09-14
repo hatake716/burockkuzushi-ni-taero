@@ -1,22 +1,27 @@
 #!/usr/bin/env python3
 """Author SVG store art from the app's own vector vocabulary; rasterize with FFmpeg/librsvg."""
 from pathlib import Path
-import math, subprocess
+import math, os, subprocess, tempfile
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'docs/store'
 C=['#41e8ee','#8a9bff','#c788ff','#ff65bf','#ffbc6b']
+# Register the bundled font only for this renderer, without changing host fonts.
+font_config=tempfile.TemporaryDirectory(prefix='taero-font-')
+config=Path(font_config.name)/'fonts.conf'
+config.write_text(f'<fontconfig><include>/etc/fonts/fonts.conf</include><dir>{ROOT}/app/src/main/res/font</dir></fontconfig>')
+render_env={**os.environ,'FONTCONFIG_FILE':str(config)}
 def svg(w,h,body):
  return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
  <defs><radialGradient id="bg"><stop stop-color="#253779"/><stop offset="1" stop-color="#080c24"/></radialGradient>
  <radialGradient id="pink"><stop stop-color="#ff65bf" stop-opacity=".30"/><stop offset="1" stop-color="#ff65bf" stop-opacity="0"/></radialGradient>
  <linearGradient id="block" x2="0" y2="1"><stop stop-color="#fff" stop-opacity=".30"/><stop offset="1" stop-color="#fff" stop-opacity=".04"/></linearGradient></defs>
  <rect width="100%" height="100%" fill="url(#bg)"/>{body}</svg>'''
-def text(x,y,s,size,fill='#f0f5ff',weight=700):
- return f'<text x="{x}" y="{y}" font-family="Noto Sans CJK JP, DejaVu Sans, sans-serif" font-size="{size}" font-weight="{weight}" fill="{fill}">{s}</text>'
+def text(x,y,s,size,fill='#f0f5ff',weight=400):
+ return f'<text x="{x}" y="{y}" font-family="DotGothic16" font-size="{size}" font-weight="400" fill="{fill}">{s}</text>'
 def render(name,source,rgba=False):
  p=OUT/'source'/f'{name}.svg';p.parent.mkdir(parents=True,exist_ok=True);p.write_text(source)
  target=OUT/(name+'.png');target.parent.mkdir(parents=True,exist_ok=True)
- subprocess.run(['ffmpeg','-y','-loglevel','error','-i',str(p),'-frames:v','1','-pix_fmt','rgba' if rgba else 'rgb24',str(target)],check=True)
+ subprocess.run(['ffmpeg','-y','-loglevel','error','-i',str(p),'-frames:v','1','-pix_fmt','rgba' if rgba else 'rgb24',str(target)],check=True,env=render_env)
  return target
 # The central mark is the exact geometry of the Android adaptive foreground.
 icon='''<g transform="scale(4.74074074)"><path fill="#34E7F2" d="M22 32h18v12H22z M45 32h18v12H45z M68 32h18v12H68z M22 49h18v12H22z M68 49h18v12H68z"/>

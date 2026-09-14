@@ -1,6 +1,6 @@
 # Play Console 申告資料
 
-対象：`io.github.hatake716.taero`、1.0.3 / 4。確認日：2026-09-13。
+対象：`io.github.hatake716.taero`、1.0.4 / 5。確認日：2026-09-14。
 この文書は実装を調べた回答用資料です。Consoleへ送信済みの申告でも、Google/IARCが確定した評価でもありません。
 
 ## データセーフティ
@@ -30,9 +30,9 @@ Googleは端末内だけで処理する情報をデータセーフティの「�
 - 連絡先：acesmash@gmail.com
 - 公開用ファイル：[日本語・英語HTML](privacy/index.html)
 - アプリ内：タイトル → 音と演出 / Sound & effects → プライバシー / Privacy
-- ストアに入力するURL：[公開済みプライバシーポリシー](https://hatake716.github.io/burockkuzushi-ni-taero/privacy/)。2026-09-13にログイン不要のHTTPS 200と本文一致を確認
+- ストアに入力するURL：[公開済みプライバシーポリシー](https://hatake716.github.io/burockkuzushi-ni-taero/privacy/)。2026-09-14にログイン不要のHTTPS 200と本文一致を確認
 
-データを収集しないアプリでも、公開されたポリシーとアプリ内のポリシー表示またはリンクが必要です。本バージョンにアプリ内表示を追加しました。[Googleのユーザーデータ方針](https://support.google.com/googleplay/android-developer/answer/10144311?hl=en)
+データを収集しないアプリでも、公開されたポリシーとアプリ内のポリシー表示またはリンクが必要です。本アプリではポリシー本文をアプリ内で閲覧できます。[Googleのユーザーデータ方針](https://support.google.com/googleplay/android-developer/answer/10144311?hl=en)
 
 ## 広告・アクセス・購入
 

@@ -1,8 +1,10 @@
-# Google Play 公開素材ガイド — 1.0.3
+# Google Play 公開素材ガイド — 1.0.4
 
-作成・公式仕様の確認日：2026-09-13。開発者 **hatake716**、問い合わせ **acesmash@gmail.com**。
+作成・公式仕様の確認日：2026-09-14。開発者 **hatake716**、問い合わせ **acesmash@gmail.com**。
 
 日本語・英語のストア文章、実画面16枚、グラフィック、音付き紹介動画2本、署名付きAAB/APK、公開用HTMLを準備しています。Play Consoleへのアップロード、IARC質問票の提出、審査申請、Google Playでの公開は実施していません。
+
+まとめZIP：`artifacts/SurviveBreakout-GooglePlay-1.0.4.zip`。スクリーンショットだけを使う場合は `artifacts/SurviveBreakout-Screenshots-1.0.4.zip` を展開してください。
 
 ## 最初に開くもの
 
@@ -16,7 +18,7 @@
 | 項目 | 入力・ファイル |
 |---|---|
 | パッケージ | `io.github.hatake716.taero` |
-| バージョン | `1.0.3` / versionCode `4` |
+| バージョン | `1.0.4` / versionCode `5` |
 | デフォルト言語 | 日本語 `ja-JP` |
 | 追加翻訳 | 英語 `en-US` |
 | 日本語名 / 英語名 | ブロック崩しに耐えろ！ / Survive Breakout! |
@@ -41,11 +43,11 @@
 
 スクリーンショットはファイル名の01→08の順で登録します。最初の4枚がゲームプレイ、5枚目が同時タップ警告、6枚目が結果、7枚目が端末内ランキング、8枚目がタイトルです。代替テキストは各言語の `screenshot-alt-text.json` にあります。端末タイプはスマートフォンです。未検証のタブレット・TV・Wear OS用として転用しません。
 
-API 35エミュレーター上の1.0.3を通常のタッチ入力で操作して収録しました。ゲーム内部の玉数・時間・スコア・抽選結果を撮影用に書き換えていません。スクリーンショットは内容を変更せず、PNGのカラー形式だけを変換しています。表示値はその実行での記録であり、世界ランキングではありません。各画像は[Googleのプレビュー素材仕様](https://support.google.com/googleplay/android-developer/answer/9866151?hl=en)に合わせています。
+API 35エミュレーター上の1.0.4を通常のタッチ入力で操作して収録しました。ゲーム内部の玉数・時間・スコア・抽選結果を撮影用に書き換えていません。スクリーンショットは内容を変更せず、PNGのカラー形式だけを変換しています。表示値はその実行での記録であり、世界ランキングではありません。各画像は[Googleのプレビュー素材仕様](https://support.google.com/googleplay/android-developer/answer/9866151?hl=en)に合わせています。
 
 ## 紹介動画
 
-各言語の `preview.mp4` は縦1080 × 1920、H.264、30fps出力、AACステレオ。日本語約36.6秒、英語約25.2秒です。`preview.srt` が字幕、`youtube-title.txt` と `youtube-description.txt` が投稿文です。
+各言語の `preview.mp4` は縦1080 × 1920、H.264、30fps出力、AACステレオ。日本語約21.5秒、英語約24.8秒です。`preview.srt` が字幕、`youtube-title.txt` と `youtube-description.txt` が投稿文です。
 
 全体を通して実際の画面を表示し、画面の外に字幕帯を付けました。映像の早回し、架空のスコア、異なるプレイの継ぎ合わせはありません。音声は同梱のオリジナルBGM・SEから編集用に再構成したミックスです。SEの時刻は収録ログからの近似で、端末音声の録音ではありません。詳細は各言語の `provenance.json` に記録しています。
 
@@ -57,10 +59,10 @@ Play Consoleの動画欄にはMP4を直接入れず、YouTubeの動画URLを登�
 2. 既存のアプリ登録がある場合はパッケージ名・アップロード証明書・versionCodeを照合します。新規登録ならこのAABのアップロード鍵を継続利用します。
 3. 日本語・英語のストア文章、共通アイコン、各言語の画像を登録します。動画を使用する場合は上記YouTube URLも登録します。
 4. [申告資料](PLAY_DECLARATIONS.md)を参照し、Consoleの実際の質問に回答します。対象年齢、配信国、価格、IARC回答と評価は開発者が決定する項目です。架空の評価や公開日を入力しません。
-5. `release/taero-1.0.3-play.aab` をテストトラックにアップロードし、Play経由の配信で動作を確認します。アカウントに表示される本人確認・テスト要件を完了してから製品版を申請します。
+5. `release/taero-1.0.4-play.aab` をテストトラックにアップロードし、Play経由の配信で動作を確認します。アカウントに表示される本人確認・テスト要件を完了してから製品版を申請します。
 
 画像・動画・文章は用意できていますが、公開URLの設定とアカウント上の申告・テスト・審査は別の作業です。公式情報は更新されるため、申請時点でもConsoleの表示を確認してください。
 
 ## プライバシーポリシーの更新
 
-公開元は `gh-pages` ブランチの `/privacy/index.html` です。`main` の編集だけでは公開ページは更新されません。本文の元データは各言語の `privacy-policy.txt` とアプリ内文字列で一致させます。`python3 tools/generate_privacy_page.py` でHTMLを生成し、公開が必要なときに `python3 tools/publish_privacy_page.py` を実行します。Pagesのデプロイ完了後、公開URLの本文一致を確認してください。今回の公開記録は [publication.json](store/publication.json) にあります。
+公開元は `gh-pages` ブランチの `/privacy/index.html` です。`main` の編集だけでは公開ページは更新されません。本文の元データは各言語の `privacy-policy.txt` とアプリ内文字列で一致させます。`python3 tools/generate_privacy_page.py` でHTMLを生成し、公開が必要なときに `python3 tools/publish_privacy_page.py` を実行します。Pagesのデプロイ完了後、公開URLの本文一致を確認してください。初回の公開記録は [publication.json](store/publication.json) にあります。

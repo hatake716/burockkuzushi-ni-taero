@@ -73,7 +73,7 @@ printf 'sdk.dir=/path/to/Android/Sdk\n' > local.properties
 ```
 
 直接インストールして試せる開発用APK：`app/build/outputs/apk/debug/app-debug.apk`。
-Gradle直後のrelease APK / AABは未署名です。`tools/sign_play_artifacts.py` でGit管理外の鍵を使って署名します。最新1.0.4の署名付きAPK/AABは `artifacts/play-1.0.4/release/` にあります。`docs/store/` と公開素材ZIPは1.0.3時点の資料・映像です。1.0.4の画面確認用画像は `docs/screenshots/1.0.4/` を参照してください。公開手順は [Google Play素材ガイド](docs/PLAY_STORE.md)、確認記録は [1.0.4の検証](docs/releases/1.0.4.md) を参照してください。Play Consoleへの送信・公開は未実施です。
+Gradle直後のrelease APK / AABは未署名です。`tools/sign_play_artifacts.py` でGit管理外の鍵を使って署名します。最新1.0.4の署名付きAPK/AABは `artifacts/play-1.0.4/release/` にあります。`docs/store/` と `artifacts/SurviveBreakout-GooglePlay-1.0.4.zip` に、1.0.4で撮り直した日英の公開素材を用意しています。1.0.4の画面確認用画像は `docs/screenshots/1.0.4/` を参照してください。公開手順は [Google Play素材ガイド](docs/PLAY_STORE.md)、確認記録は [1.0.4の検証](docs/releases/1.0.4.md) を参照してください。Play Consoleへの送信・公開は未実施です。
 `local.properties`、署名鍵、生成したAPK/AABはGit管理対象外。
 
 ```sh

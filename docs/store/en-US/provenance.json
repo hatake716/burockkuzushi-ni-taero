@@ -1,63 +1,64 @@
 {
-  "version": "1.0.3",
+  "version": "1.0.4",
   "language": "en-US",
   "capture": "Android API 35 emulator, 1080 × 1920, ordinary touch input, unmodified game state",
   "screenshots": "Full screen, no overlays or retouching; lossless RGBA to RGB encoding only. Snapshot log reads state after capture; that observation can differ from the presented frame.",
   "video": {
-    "source_sha256": "266ba0537d767b8357e9c3b1f84c575291d4a0d7a01b10605d941e9aa3aa9b65",
+    "source_sha256": "3820117fff9916bb7d8b9aa05dbb3f6e9c497840dfcf1448f4abf295299a00d7",
     "trim_start_seconds": 3.9,
-    "duration_seconds": 25.235822000000002,
+    "duration_seconds": 24.745244000000003,
     "screen": "Entire captured screen scaled to 1000 × 1778 inside a 1080 × 1920 caption layout; no speed changes or spliced gameplay.",
-    "audio": "New mix of original bundled music and sound effects; event-log timings are approximate (capture/compositor latency is not corrected). Not device audio capture. Random in-game burst pitch and paddle sounds are not reproduced exactly."
+    "audio": "New mix of original bundled music and sound effects; event-log timings use an estimated recording offset and are approximate. Not device audio capture. Random in-game burst pitch and paddle sounds are not reproduced exactly.",
+    "estimated_recording_offset_seconds": 0.39075599999999966
   },
   "screenshots_capture_log": [
     {
       "file": "08-title.png",
-      "videoSeconds": 1.674,
+      "videoSeconds": 1.706,
       "gameSeconds": 0,
       "score": "0.0000"
     },
     {
       "file": "01-gameplay.png",
-      "videoSeconds": 8.508,
-      "gameSeconds": 3.772526315,
-      "score": "14.2317"
+      "videoSeconds": 8.49,
+      "gameSeconds": 3.722761409,
+      "score": "13.8584"
     },
     {
       "file": "02-gameplay.png",
-      "videoSeconds": 12.051,
-      "gameSeconds": 7.305951314,
-      "score": "53.3761"
+      "videoSeconds": 12.099,
+      "gameSeconds": 7.317292672,
+      "score": "53.5414"
     },
     {
       "file": "03-gameplay.png",
-      "videoSeconds": 16.154,
-      "gameSeconds": 11.294804824,
-      "score": "127.5725"
+      "videoSeconds": 15.589,
+      "gameSeconds": 10.807302336,
+      "score": "116.7977"
     },
     {
       "file": "04-gameplay.png",
-      "videoSeconds": 19.492,
-      "gameSeconds": 14.674161404,
-      "score": "215.3292"
+      "videoSeconds": 19.102,
+      "gameSeconds": 14.321946257,
+      "score": "205.1168"
     },
     {
       "file": "05-one-finger-rule.png",
-      "videoSeconds": 22.71,
-      "gameSeconds": 17.877204177,
-      "score": "319.5942"
+      "videoSeconds": 21.765,
+      "gameSeconds": 16.985931004,
+      "score": "288.5207"
     },
     {
       "file": "06-result.png",
-      "videoSeconds": 28.848,
-      "gameSeconds": 22.93229663,
-      "score": "525.8857"
+      "videoSeconds": 28.329,
+      "gameSeconds": 22.269782378,
+      "score": "495.9395"
     },
     {
       "file": "07-ranking.png",
-      "videoSeconds": 29.683,
-      "gameSeconds": 22.93229663,
-      "score": "525.8857"
+      "videoSeconds": 29.186,
+      "gameSeconds": 22.269782378,
+      "score": "495.9395"
     }
   ]
 }

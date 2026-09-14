@@ -5,10 +5,12 @@
 ブロックを再生する神になって、CPUのブロック崩しを妨害するAndroid向け耐久ゲーム。
 玉が増え、速度が掛け算で膨らみ、ネオンの花火が弾ける中、最後の１個まで守りきろう。
 
+1.0.4では、日本語・英数字をゲームボーイ風のドットフォント **DotGothic16** に統一しています。タイトル、スコア、通知、遊び方、設定、ランキングまで適用しています。[フォントとライセンス](docs/FONTS.md)
+
 <p>
-  <img src="docs/screenshots/title.png" width="250" alt="タイトル画面">
-  <img src="docs/screenshots/gameplay.png" width="250" alt="プレイ画面">
-  <img src="docs/screenshots/result.png" width="250" alt="通常プレイの結果画面">
+  <img src="docs/screenshots/1.0.4/ja-title.png" width="250" alt="1.0.4 日本語ドットフォントのタイトル">
+  <img src="docs/screenshots/1.0.4/en-title.png" width="250" alt="1.0.4 English pixel font title">
+  <img src="docs/screenshots/1.0.4/ja-settings.png" width="250" alt="1.0.4 ドットフォントの設定画面">
 </p>
 
 ## 日本語・英語の自動切り替え
@@ -17,12 +19,6 @@
 英語名は **Survive Breakout!**。タイトル・プレイ画面・全９種類のスロット・警告・遊び方・設定・ランキング・読み上げ説明まで対応。
 フランス語、日本語の順に登録されている端末も英語になる。Android 13以降で利用者がOS側のアプリ別言語を指定した場合は、その最優先言語に従う。
 言語を変えても途中のゲーム・ランキング・音の設定は引き継ぐ。時間とスコアは両言語とも小数点以下４桁で表示する。
-
-<p>
-  <img src="docs/screenshots/en-title.png" width="250" alt="Survive Breakout! English title screen">
-  <img src="docs/screenshots/en-slot.png" width="250" alt="English combined slot effect">
-  <img src="docs/screenshots/en-settings.png" width="250" alt="English sound and effects settings">
-</p>
 
 ## 遊び方
 
@@ -77,7 +73,7 @@ printf 'sdk.dir=/path/to/Android/Sdk\n' > local.properties
 ```
 
 直接インストールして試せる開発用APK：`app/build/outputs/apk/debug/app-debug.apk`。
-Gradle直後のrelease APK / AABは未署名です。`tools/sign_play_artifacts.py` でGit管理外の鍵を使って署名します。1.0.3の署名付きAPK/AABと日英のGoogle Play素材を `artifacts/play-1.0.3/release/` と `docs/store/` に用意しています。公開手順は [Google Play素材ガイド](docs/PLAY_STORE.md)、確認記録は [リリース検証](docs/PLAY_RELEASE.md) を参照してください。Play Consoleへの送信・公開は未実施です。
+Gradle直後のrelease APK / AABは未署名です。`tools/sign_play_artifacts.py` でGit管理外の鍵を使って署名します。最新1.0.4の署名付きAPK/AABは `artifacts/play-1.0.4/release/` にあります。`docs/store/` と公開素材ZIPは1.0.3時点の資料・映像です。1.0.4の画面確認用画像は `docs/screenshots/1.0.4/` を参照してください。公開手順は [Google Play素材ガイド](docs/PLAY_STORE.md)、確認記録は [1.0.4の検証](docs/releases/1.0.4.md) を参照してください。Play Consoleへの送信・公開は未実施です。
 `local.properties`、署名鍵、生成したAPK/AABはGit管理対象外。
 
 ```sh

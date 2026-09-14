@@ -31,9 +31,10 @@ class GameView(context: Context, private val store: GameStore, private val audio
     private var bestTicks = store.rankings().firstOrNull()?.ticks ?: 0
     private val guard = TapGuard()
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val normal = Typeface.create("sans-serif", Typeface.NORMAL)
-    private val bold = Typeface.create("sans-serif", Typeface.BOLD)
-    private val digits = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+    // Keep the original pixel shapes; synthetic bold would fill the small gaps.
+    private val normal = resources.getFont(R.font.dot_gothic)
+    private val bold = normal
+    private val digits = normal
     private val colors = intArrayOf(0xff41e8ee.toInt(), 0xff8a9bff.toInt(), 0xffc788ff.toInt(), 0xffff65bf.toInt(), 0xffffbc6b.toInt())
     private val cyan = colors[0]
     private val pink = colors[3]

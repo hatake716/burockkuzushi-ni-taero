@@ -5,3 +5,5 @@ gradlew text eol=lf
 *.ogg binary
 *.wav binary
 *.jar binary
+# Preserve the upstream font license, including its line endings and spacing.
+app/src/main/assets/licenses/DotGothic16-OFL.txt -text whitespace=-blank-at-eol,cr-at-eol

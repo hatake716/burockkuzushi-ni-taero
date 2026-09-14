@@ -3,6 +3,8 @@
 from pathlib import Path
 import hashlib,json,subprocess,zipfile
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'artifacts'
+metadata=json.loads((ROOT/'app/build/outputs/apk/release/output-metadata.json').read_text())
+assert metadata['elements'][0]['versionName']=='1.0.3', 'This packager targets 1.0.3; do not mix a newer build/mapping into the archived kit'
 subprocess.run(['python3',str(ROOT/'tools/check_store_assets.py')],check=True)
 files={}
 for folder in ['docs/store','docs/privacy','docs/support']:

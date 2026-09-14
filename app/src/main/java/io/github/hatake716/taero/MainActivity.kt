@@ -4,6 +4,8 @@ import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -21,6 +23,7 @@ class MainActivity : ComponentActivity() {
         private set
     private lateinit var store: GameStore
     private lateinit var audio: GameAudio
+    private val gameFont by lazy { resources.getFont(R.font.dot_gothic) }
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLanguage.localizedContext(newBase))
@@ -59,7 +62,20 @@ class MainActivity : ComponentActivity() {
     private fun showGuide() {
         AlertDialog.Builder(this).setTitle(R.string.guide_title)
             .setMessage(R.string.guide_body)
-            .setPositiveButton(R.string.got_it, null).show()
+            .setPositiveButton(R.string.got_it, null).create().showWithGameFont()
+    }
+
+    private fun AlertDialog.showWithGameFont() {
+        show()
+        val root = window?.decorView ?: return
+        fun apply(view: View) {
+            if (view is TextView && view.typeface != gameFont) view.typeface = gameFont
+            if (view is ViewGroup) for (i in 0 until view.childCount) apply(view.getChildAt(i))
+        }
+        // Platform dialog titles can override the theme font. Also style list
+        // rows when Android creates/recycles them after layout or scrolling.
+        root.viewTreeObserver.addOnGlobalLayoutListener { apply(root) }
+        apply(root)
     }
 
     private fun showSettings() {
@@ -77,10 +93,10 @@ class MainActivity : ComponentActivity() {
                 gameView.invalidate()
             }.setNeutralButton(R.string.privacy_title) { _, _ ->
                 AlertDialog.Builder(this).setTitle(R.string.privacy_title)
-                    .setMessage(R.string.privacy_body).setPositiveButton(R.string.close, null).show()
+                    .setMessage(R.string.privacy_body).setPositiveButton(R.string.close, null).create().showWithGameFont()
             }.setPositiveButton(R.string.close, null).create()
         dialog.setOnDismissListener { if (gameView.screen == GameView.Screen.PAUSED) audio.pause() }
-        dialog.show()
+        dialog.showWithGameFont()
     }
 
     private fun showRankings() {
@@ -106,7 +122,7 @@ class MainActivity : ComponentActivity() {
         }
         AlertDialog.Builder(this).setTitle(getString(R.string.rankings_title, entries.size))
             .setView(ScrollView(this).apply { addView(layout) })
-            .setPositiveButton(R.string.close, null).show()
+            .setPositiveButton(R.string.close, null).create().showWithGameFont()
     }
 
     override fun onResume() { super.onResume(); if (::gameView.isInitialized) gameView.foreground() }

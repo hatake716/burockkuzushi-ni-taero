@@ -22,7 +22,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
-import kotlin.math.min
 import kotlin.random.Random
 
 @RunWith(AndroidJUnit4::class)
@@ -76,15 +75,19 @@ class GameUiTest {
     }
 
     private fun point(index: Int): PointF {
+        instrumentation.waitForIdleSync()
         var p=PointF()
-        onActivity {
-            val v=it.gameView; val loc=IntArray(2); v.getLocationOnScreen(loc)
-            val s=min(v.width/900f,v.height/1800f)
-            val b=GameEngine.blockBox(index)
-            p=PointF(loc[0]+(v.width-900*s)/2+((b.left+b.right).toFloat()/2+50)*s,
-                loc[1]+(v.height-1800*s)/2+((b.top+b.bottom).toFloat()/2+413)*s)
-        }
+        onActivity { p=it.gameView.blockCenterOnScreen(index) }
         return p
+    }
+
+    private fun tapText(value: String) {
+        repeat(8) {
+            val item=device.findObject(By.text(java.util.regex.Pattern.compile(java.util.regex.Pattern.quote(value),java.util.regex.Pattern.CASE_INSENSITIVE)))
+            if(item!=null && item.visibleBounds.height()>=48*activity.resources.displayMetrics.density) { item.click(); SystemClock.sleep(120); return }
+            device.findObject(By.scrollable(true))?.scroll(androidx.test.uiautomator.Direction.DOWN,.7f)
+        }
+        fail("Missing reachable text: $value")
     }
 
     private fun inject(action: Int, points: List<PointF>, down: Long) {
@@ -111,15 +114,14 @@ class GameUiTest {
 
     @Test fun titleGuideAndSettingsAreReachable() {
         shot("title")
-        device.findObject(By.text(s(R.string.how_to_play))).click()
+        tapText(s(R.string.how_to_play))
         assertTrue(device.wait(Until.hasObject(By.text(s(R.string.guide_title))),2000))
         shot("guide")
         device.findObject(By.res("android:id/button1")).click()
-        assertTrue(device.wait(Until.hasObject(By.text(s(R.string.settings))),2000))
-        device.findObject(By.text(s(R.string.settings))).click()
+        tapText(s(R.string.settings))
         assertTrue(device.wait(Until.hasObject(By.text(s(R.string.setting_music))),2000))
         shot("settings")
-        device.findObject(By.text(s(R.string.setting_music))).click()
+        tapText(s(R.string.setting_music))
         val deadline=SystemClock.uptimeMillis()+1500
         while(GameStore(context).music && SystemClock.uptimeMillis()<deadline) SystemClock.sleep(30)
         assertFalse(GameStore(context).music)
@@ -130,7 +132,7 @@ class GameUiTest {
     }
 
     @Test fun menuStartCountsDownThenRunsAndPauses() {
-        device.findObject(By.text(s(R.string.start_game))).click()
+        tapText(s(R.string.start_game))
         awaitScreen(GameView.Screen.COUNTDOWN)
         onActivity { assertEquals(GameView.Screen.COUNTDOWN,it.gameView.screen) }
         assertTrue(device.wait(Until.hasObject(By.text("Ⅱ")),5000))
@@ -261,7 +263,7 @@ class GameUiTest {
         scenario.recreate()
         scenario.onActivity { activity = it }
         assertTrue(device.wait(Until.hasObject(By.text(s(R.string.continue_run))),3000))
-        device.findObject(By.text(s(R.string.continue_run))).click()
+        tapText(s(R.string.continue_run))
         awaitScreen(GameView.Screen.COUNTDOWN)
         onActivity {
             assertEquals(saved.second.elapsedNanos,it.gameView.engine.elapsedNanos)
@@ -301,7 +303,7 @@ class GameUiTest {
             assertEquals(target,activity.resources.configuration.locales[0].language)
             assertTrue(device.wait(Until.hasObject(By.text(s(R.string.continue_run))),2500))
             assertEquals(listOf(entry),GameStore(context).rankings())
-            device.findObject(By.text(s(R.string.continue_run))).click()
+            tapText(s(R.string.continue_run))
             awaitScreen(GameView.Screen.COUNTDOWN)
             onActivity {
                 assertEquals(saved.second.elapsedNanos,it.gameView.engine.elapsedNanos)
@@ -331,7 +333,7 @@ class GameUiTest {
         val list=GameStore(context).rankings()
         assertEquals(1,list.size);assertTrue(list[0].ticks>=123456);assertNull(GameStore(context).loadRun())
         shot("result")
-        device.findObject(By.text(s(R.string.view_rankings))).click()
+        tapText(s(R.string.view_rankings))
         assertTrue(device.wait(Until.hasObject(By.text(s(R.string.rankings_title, 1))),1500))
         shot("ranking")
         assertEquals(1,GameStore(context).rankings().size)
@@ -342,7 +344,7 @@ class GameUiTest {
         for (i in 0..104) store.record(ScoreEntry("test-$i",i*10001L,1000L+i,1,2))
         val read=GameStore(context).rankings()
         assertEquals(100,read.size);assertEquals(104*10001L,read.first().ticks);assertEquals(5*10001L,read.last().ticks)
-        device.findObject(By.text(s(R.string.top_100))).click()
+        tapText(s(R.string.top_100))
         assertTrue(device.wait(Until.hasObject(By.text(s(R.string.rankings_title, 100))),2000))
         val scroll=device.findObject(By.scrollable(true))
         assertNotNull(scroll)

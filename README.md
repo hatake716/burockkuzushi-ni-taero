@@ -5,12 +5,12 @@
 ブロックを再生する神になって、CPUのブロック崩しを妨害するAndroid向け耐久ゲーム。
 玉が増え、速度が掛け算で膨らみ、ネオンの花火が弾ける中、最後の１個まで守りきろう。
 
-1.0.4では、日本語・英数字をゲームボーイ風のドットフォント **DotGothic16** に統一しています。タイトル、スコア、通知、遊び方、設定、ランキングまで適用しています。[フォントとライセンス](docs/FONTS.md)
+1.0.5では、進行状況の読み上げ、端末の文字サイズへの追従、48dp以上のブロック操作領域、保存データの上書き確認、プレイ中だけの画面点灯を実装しました。[修正と検証](docs/releases/1.0.5.md)。日本語・英数字はゲームボーイ風の **DotGothic16** を引き続き使用しています。[フォントとライセンス](docs/FONTS.md)
 
 <p>
-  <img src="docs/screenshots/1.0.4/ja-title.png" width="250" alt="1.0.4 日本語ドットフォントのタイトル">
-  <img src="docs/screenshots/1.0.4/en-title.png" width="250" alt="1.0.4 English pixel font title">
-  <img src="docs/screenshots/1.0.4/ja-settings.png" width="250" alt="1.0.4 ドットフォントの設定画面">
+  <img src="docs/screenshots/1.0.5/ja-title-default.png" width="250" alt="1.0.5 日本語タイトル、標準文字サイズ">
+  <img src="docs/screenshots/1.0.5/ja-title-large.png" width="250" alt="1.0.5 日本語タイトル、文字サイズ2倍">
+  <img src="docs/screenshots/1.0.5/ja-confirm-large.png" width="250" alt="1.0.5 保存データの上書き確認、文字サイズ2倍">
 </p>
 
 ## 日本語・英語の自動切り替え
@@ -28,6 +28,9 @@
 - 全40個が破壊された瞬間に終了。**スコア＝生存時間（秒）の２乗**。
 - 生存時間は小数点以下４桁で表示。終了したゲームの上位100件を端末内に保存する。
 - 途中のゲームは一時停止して保存可能。バックグラウンド中は時間・物理・スロット・効果時間を止め、再開時に３秒カウントダウンする。
+- 保存済みのプレイがある場合、新規開始前に上書きを確認。キャンセルや戻る操作で保存を維持する。
+- 文字を大きくすると画面を縦にスクロールできる。盤面の幅が足りない端末では横スクロールで各マスの48dp以上の操作領域を保つ。一時停止ボタンは右上に固定する。
+- 進行状況は読み上げで確認可能。玉数・残存ブロックの自動通知は変更がある場合に最大5秒ごと。効果発動・複数指の警告は発生時に通知する。
 
 ## ７秒ごとのCPUスロット
 
@@ -73,7 +76,7 @@ printf 'sdk.dir=/path/to/Android/Sdk\n' > local.properties
 ```
 
 直接インストールして試せる開発用APK：`app/build/outputs/apk/debug/app-debug.apk`。
-Gradle直後のrelease APK / AABは未署名です。`tools/sign_play_artifacts.py` でGit管理外の鍵を使って署名します。最新1.0.4の署名付きAPK/AABは `artifacts/play-1.0.4/release/` にあります。`docs/store/` と `artifacts/SurviveBreakout-GooglePlay-1.0.4.zip` に、1.0.4で撮り直した日英の公開素材を用意しています。1.0.4の画面確認用画像は `docs/screenshots/1.0.4/` を参照してください。公開手順は [Google Play素材ガイド](docs/PLAY_STORE.md)、確認記録は [1.0.4の検証](docs/releases/1.0.4.md) を参照してください。Play Consoleへの送信・公開は未実施です。
+Gradle直後のrelease APK / AABは未署名です。`tools/sign_play_artifacts.py` でGit管理外の鍵を使って署名します。最新1.0.5の署名付きAPK/AABは `artifacts/play-1.0.5/release/` にあります。確認記録は [1.0.5の検証](docs/releases/1.0.5.md)、確認画像は `docs/screenshots/1.0.5/` を参照してください。`docs/store/` と `artifacts/SurviveBreakout-GooglePlay-1.0.4.zip` は1.0.4時点の公開素材です。今回のUIとは異なるため、1.0.5の公開前には画像・動画の再収録が必要です。公開手順は [Google Play素材ガイド](docs/PLAY_STORE.md)。Play Consoleへの送信・公開は未実施です。
 `local.properties`、署名鍵、生成したAPK/AABはGit管理対象外。
 
 ```sh
@@ -93,7 +96,9 @@ adb -s emulator-5554 shell am instrument -w \
 | ファイル | 役割 |
 | --- | --- |
 | `GameEngine.kt` | Androidに依存しない時間・物理・CPU・スロット・入力規則・スコア |
-| `GameView.kt` | Canvas描画、タッチ入力、カウントダウン、画面、花火 |
+| `GameView.kt` | 文字サイズに追従する画面・操作、状態読み上げ、カウントダウン |
+| `ArenaView.kt` / `ArenaLayout.kt` | ネオン盤面描画、40個の独立した操作領域、物理座標から表示への変換 |
+| `LiveStatusView.kt` | 画面更新と読み上げ頻度を分けた進行状況のライブ領域 |
 | `GameStore.kt` | 上位100件と中断ゲーム、音・演出設定の保存 |
 | `GameAudio.kt` | BGMループ、SE多重発音、オーディオフォーカス |
 | `MainActivity.kt` | ライフサイクル、インセット、遊び方・ランキング・設定 |

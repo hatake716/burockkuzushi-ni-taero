@@ -19,7 +19,6 @@ import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
-import kotlin.math.min
 
 /** Opt-in media capture: only reads game state and sends ordinary touchscreen input. */
 @RunWith(AndroidJUnit4::class)
@@ -44,12 +43,7 @@ class StoreCaptureTest {
         }
         fun point(index: Int): PointF {
             var p=PointF()
-            main {
-                val v=it.gameView; val loc=IntArray(2);v.getLocationOnScreen(loc)
-                val scale=min(v.width/900f,v.height/1800f); val b=GameEngine.blockBox(index)
-                p=PointF(loc[0]+(v.width-900*scale)/2+((b.left+b.right).toFloat()/2+50)*scale,
-                    loc[1]+(v.height-1800*scale)/2+((b.top+b.bottom).toFloat()/2+413)*scale)
-            }
+            main { p=it.gameView.blockCenterOnScreen(index) }
             return p
         }
         fun multiTouch() {

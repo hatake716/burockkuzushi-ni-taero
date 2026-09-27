@@ -1,0 +1,5 @@
+<resources>
+    <item name="game_status" type="id"/>
+    <item name="game_live_status" type="id"/>
+    <item name="game_status_header" type="id"/>
+</resources>

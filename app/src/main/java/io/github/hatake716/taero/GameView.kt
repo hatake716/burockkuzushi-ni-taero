@@ -2,182 +2,167 @@ package io.github.hatake716.taero
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.*
-import android.os.Bundle
+import android.graphics.Color
+import android.graphics.PointF
+import android.graphics.drawable.GradientDrawable
 import android.os.SystemClock
 import android.view.Choreographer
+import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityNodeInfo
-import android.view.accessibility.AccessibilityNodeProvider
+import android.widget.*
+import java.util.Locale
 import java.util.UUID
 import kotlin.math.*
-import kotlin.random.Random
 
+/** Native, scalable text and controls surround the animated arcade arena. */
 @SuppressLint("ViewConstructor")
 class GameView(context: Context, private val store: GameStore, private val audio: GameAudio,
-    private val rankings: () -> Unit, private val guide: () -> Unit, private val settings: () -> Unit
-) : View(context), Choreographer.FrameCallback {
+    private val rankings: () -> Unit, private val guide: () -> Unit, private val settings: () -> Unit,
+    private val confirmReplace: (() -> Unit) -> Unit,
+    private val awake: (Boolean) -> Unit
+) : LinearLayout(context), Choreographer.FrameCallback {
     enum class Screen { TITLE, COUNTDOWN, PLAYING, PAUSED, RESULT }
     var screen = Screen.TITLE
-        internal set
+        internal set(value) {
+            if (field == value) return
+            val wasGame = field == Screen.PLAYING || field == Screen.COUNTDOWN
+            field = value
+            syncAwake()
+            if (wasGame && (value == Screen.PLAYING || value == Screen.COUNTDOWN)) updateUi(true)
+            else buildScreen()
+        }
     var engine = GameEngine()
         internal set
     private var runId = UUID.randomUUID().toString()
-    private var savedRun: Pair<String, GameEngine>? = store.loadRun()
+    private var savedRun = store.loadRun()
     private var resultRank = 0
     private var bestTicks = store.rankings().firstOrNull()?.ticks ?: 0
-    private val guard = TapGuard()
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    // Keep the original pixel shapes; synthetic bold would fill the small gaps.
-    private val normal = resources.getFont(R.font.dot_gothic)
-    private val bold = normal
-    private val digits = normal
-    private val colors = intArrayOf(0xff41e8ee.toInt(), 0xff8a9bff.toInt(), 0xffc788ff.toInt(), 0xffff65bf.toInt(), 0xffffbc6b.toInt())
-    private val cyan = colors[0]
-    private val pink = colors[3]
-    private val lime = 0xffdfff70.toInt()
-    private val white = 0xfff0f5ff.toInt()
-    private val muted = 0xff8493b3.toInt()
-    private var scale = 1f
-    private var offsetX = 0f
-    private var offsetY = 0f
+    internal val guard = TapGuard()
     private var lastFrame = 0L
-    private var uiTime = 0.0
     private var countdown = 3.0
     private var active = false
-    private var pendingButton: Int? = null
-    private var downX = 0f
-    private var downY = 0f
-    private var shake = 0f
+    private var multipleGesture = false
     private var recordError = false
-    private var accessibilityScreen: Screen? = null
-    private var backgroundTexture: Bitmap? = null
-    private val buttons = mutableListOf<UiButton>()
-    private data class UiButton(val id: Int, val label: String, val box: RectF, val action: () -> Unit)
-    private data class Particle(var x: Float, var y: Float, var vx: Float, var vy: Float,
-        var life: Float, val maxLife: Float, val color: Int, val size: Float)
-    private data class Ring(val x: Float, val y: Float, var age: Float, val color: Int, val restore: Boolean)
-    private val particles = mutableListOf<Particle>()
-    private val rings = mutableListOf<Ring>()
-
-    private fun s(id: Int, vararg args: Any): String = context.getString(id, *args)
+    private var lastVisibleUpdate = 0L
+    private var lastStatusUpdate = 0L
+    private var lastStatusEvent = 0L
+    private val cadence = StatusCadence()
+    private val gameFont = resources.getFont(R.font.dot_gothic)
+    private var arena: ArenaView? = null
+    private var scoreText: TextView? = null
+    private var timeText: TextView? = null
+    private var statusText: TextView? = null
+    private var liveText: LiveStatusView? = null
+    private var lastSpokenStatus = ""
+    private var effectText: TextView? = null
+    private var slotText: TextView? = null
+    private var countdownText: TextView? = null
+    private var pauseButton: Button? = null
+    private val white = 0xfff0f5ff.toInt()
+    private val cyan = 0xff41e8ee.toInt()
+    private val lime = 0xffdfff70.toInt()
+    private val pink = 0xffff65bf.toInt()
+    private val muted = 0xffb1bdd5.toInt()
 
     init {
-        isFocusable = true
-        importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
-        contentDescription = s(R.string.game_description)
+        orientation = VERTICAL
+        setBackgroundColor(0xff080c1c.toInt())
+        buildScreen()
     }
+    private fun s(id: Int, vararg args: Any) = context.getString(id, *args)
+    internal fun dp(value: Float) = ceil(value * resources.displayMetrics.density).toInt()
+    private fun syncAwake() = awake(active && (screen == Screen.PLAYING || screen == Screen.COUNTDOWN))
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        scale = min(w / 900f, h / 1800f)
-        offsetX = (w - 900f*scale)/2; offsetY = (h-1800f*scale)/2
-    }
-
-    fun beginRun() {
+    internal fun beginRun() {
         engine = GameEngine(); runId = UUID.randomUUID().toString()
-        particles.clear(); rings.clear(); guard.cancel(); savedRun = null
+        guard.cancel(); savedRun = null
         store.saveRun(runId, engine)
-        recordError = false; countdown = 3.0; screen = Screen.COUNTDOWN
+        recordError = false; countdown = 3.0
+        cadence.reset(SystemClock.elapsedRealtime())
+        screen = Screen.COUNTDOWN
         lastFrame = SystemClock.elapsedRealtimeNanos()
         audio.start(); announce(s(R.string.start_announcement))
     }
-
+    private fun requestNewRun() {
+        if (savedRun != null) confirmReplace { beginRun() } else beginRun()
+    }
     fun pauseGame() {
         if (screen != Screen.PLAYING && screen != Screen.COUNTDOWN) return
         if (screen == Screen.PLAYING) tick(SystemClock.elapsedRealtimeNanos())
         if (screen == Screen.RESULT) return
-        screen = Screen.PAUSED; guard.cancel(); pendingButton = null
-        store.saveRun(runId, engine); audio.pause(); invalidate()
+        guard.cancel(); screen = Screen.PAUSED
+        store.saveRun(runId, engine); audio.pause()
         announce(s(R.string.paused_announcement))
     }
-
     fun goHome() {
-        if (screen == Screen.PAUSED) {
-            store.saveRun(runId, engine); savedRun = runId to engine
-        }
-        screen = Screen.TITLE; guard.cancel(); particles.clear(); rings.clear(); audio.start(); invalidate()
+        if (screen == Screen.PAUSED) { store.saveRun(runId, engine); savedRun = runId to engine }
+        guard.cancel(); screen = Screen.TITLE; audio.start()
     }
-
     private fun resumeGame() {
-        countdown = 3.0; screen = Screen.COUNTDOWN; guard.cancel()
-        lastFrame = SystemClock.elapsedRealtimeNanos(); audio.start(); invalidate()
+        countdown = 3.0; guard.cancel(); cadence.reset(SystemClock.elapsedRealtime())
+        screen = Screen.COUNTDOWN; lastFrame = SystemClock.elapsedRealtimeNanos(); audio.start()
     }
-
     fun foreground() {
-        if (active) return
-        active = true; lastFrame = SystemClock.elapsedRealtimeNanos()
+        if (active) { syncAwake(); return }
+        active = true; syncAwake(); lastFrame = SystemClock.elapsedRealtimeNanos()
         if (screen != Screen.PAUSED) audio.start()
         Choreographer.getInstance().postFrameCallback(this)
     }
-
     fun background() {
-        pauseGame(); active = false; guard.cancel(); audio.pause()
+        pauseGame(); active = false; syncAwake(); guard.cancel(); audio.pause()
         Choreographer.getInstance().removeFrameCallback(this)
     }
-
-    override fun onDetachedFromWindow() { Choreographer.getInstance().removeFrameCallback(this); super.onDetachedFromWindow() }
-
+    override fun onDetachedFromWindow() {
+        active = false; syncAwake(); Choreographer.getInstance().removeFrameCallback(this)
+        super.onDetachedFromWindow()
+    }
     override fun doFrame(frameTimeNanos: Long) {
         if (!active) return
-        val previousScreen = screen
         tick(SystemClock.elapsedRealtimeNanos())
-        if (screen != previousScreen || (screen != Screen.PAUSED && screen != Screen.RESULT)) invalidate()
-        // Menus need only a slow ambient pulse. Static overlays do not redraw continuously.
+        updateUi()
+        arena?.advanceVisuals()
         Choreographer.getInstance().postFrameCallbackDelayed(this,
-            if (screen == Screen.PLAYING || screen == Screen.COUNTDOWN) 0L else 80L)
+            if (screen == Screen.PLAYING || screen == Screen.COUNTDOWN) 0 else 100)
     }
-
     internal fun tick(now: Long) {
-        val nanos = if (lastFrame == 0L) 0 else (now-lastFrame).coerceAtLeast(0)
+        val nanos = if (lastFrame == 0L) 0 else (now - lastFrame).coerceAtLeast(0)
         lastFrame = now
-        val dt = (nanos / 1e9).toFloat()
-        uiTime += min(dt, .1f)
         when (screen) {
             Screen.COUNTDOWN -> {
-                countdown -= dt
-                if (countdown <= 0) { screen = Screen.PLAYING; audio.play("slot"); announce(s(R.string.survive_announcement)) }
+                countdown -= nanos / 1e9
+                if (countdown <= 0) {
+                    screen = Screen.PLAYING; audio.play("slot"); announce(s(R.string.survive_announcement))
+                }
             }
             Screen.PLAYING -> { engine.advance(nanos); processEvents() }
             else -> Unit
         }
-        if (screen != Screen.PAUSED) {
-            val visualDt = min(dt, .05f)
-            for (p in particles) {
-                p.x += p.vx*visualDt; p.y += p.vy*visualDt
-                p.vy += 230*visualDt; p.life -= visualDt
-            }
-            particles.removeAll { it.life <= 0 }
-            rings.forEach { it.age += visualDt }; rings.removeAll { it.age > .65f }
-            shake = max(0f, shake-visualDt*28)
-        }
     }
-
-    private fun processEvents() {
+    internal fun processEvents() {
+        // A screen transition can rebuild the arena while events are processed.
         for (event in engine.events) when (event) {
             is GameEvent.Burst -> {
-                explode(event)
+                arena?.burst(event)
                 audio.play(if (event.restore) "restore" else "burst")
                 if (event.restore && store.vibration) performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             }
-            is GameEvent.Effect -> { audio.play("slot"); announce(s(event.effect.text.label)) }
+            is GameEvent.Effect -> { audio.play("slot"); announce(s(event.effect.text.label)); cadence.reset(SystemClock.elapsedRealtime()) }
             GameEvent.Cheat -> {
                 audio.play("cheat")
                 if (store.vibration) performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                announce(s(R.string.cheat_announcement))
+                announce(s(R.string.cheat_announcement)); cadence.reset(SystemClock.elapsedRealtime())
             }
             GameEvent.Bounce -> audio.play("bounce")
             GameEvent.Finish -> {
-                screen = Screen.RESULT
-                saveResult()
+                saveResult(); screen = Screen.RESULT
                 announce(s(R.string.finish_announcement, ScoreFormat.score(engine.ticks)))
             }
         }
         engine.events.clear()
     }
-
     private fun saveResult() {
         runCatching {
             resultRank = store.record(ScoreEntry(runId, engine.ticks, System.currentTimeMillis(), engine.restoredCount, engine.slotCount))
@@ -186,393 +171,240 @@ class GameView(context: Context, private val store: GameStore, private val audio
         bestTicks = max(bestTicks, engine.ticks); savedRun = null
     }
 
-    private fun explode(event: GameEvent.Burst) {
-        val color = if (event.restore) lime else colors[event.index/8]
-        val count = if (store.reduced) 6 else if (event.restore) 16 else 32
-        repeat(count) {
-            val angle = Random.nextDouble(0.0, PI*2)
-            val speed = Random.nextDouble(60.0, if (event.restore) 165.0 else 340.0)
-            val life = Random.nextDouble(.25, .8).toFloat()
-            particles += Particle(event.x.toFloat(), event.y.toFloat(), (cos(angle)*speed).toFloat(),
-                (sin(angle)*speed).toFloat(), life, life, color, Random.nextDouble(2.0, 5.0).toFloat())
-        }
-        // Only visual particles are bounded. Gameplay ball count and multipliers are not capped.
-        if (particles.size > 1800) particles.subList(0, particles.size-1800).clear()
-        rings += Ring(event.x.toFloat(), event.y.toFloat(), 0f, color, event.restore)
-        if (rings.size > 80) rings.removeAt(0)
-        if (!event.restore && !store.reduced) shake = min(shake+1.3f, 4f)
+    private fun panel(color: Int = 0xff141e35.toInt(), stroke: Int = 0xff394761.toInt()) = GradientDrawable().apply {
+        setColor(color); cornerRadius = dp(10f).toFloat(); setStroke(dp(1f), stroke)
     }
-
-    override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
-        canvas.drawColor(0xff080c1c.toInt())
-        canvas.save(); canvas.translate(offsetX, offsetY); canvas.scale(scale, scale)
-        buttons.clear()
-        backgroundArt(canvas)
-        if (screen == Screen.TITLE) drawTitle(canvas) else {
-            drawGame(canvas)
-            when (screen) {
-                Screen.COUNTDOWN -> drawCountdown(canvas)
-                Screen.PAUSED -> drawPause(canvas)
-                Screen.RESULT -> drawResult(canvas)
-                else -> Unit
-            }
-        }
-        canvas.restore()
-        if (accessibilityScreen != screen) {
-            accessibilityScreen = screen
-            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED)
-        }
+    private fun label(value: String, sp: Float = 16f, color: Int = white) = TextView(context).apply {
+        text = value; textSize = sp; typeface = gameFont; setTextColor(color)
+        setPadding(0, dp(3f), 0, dp(3f))
+        // No auto-size/maxLines: system SP scaling, wrapping and parent scrolling preserve all copy.
     }
-
-    private fun backgroundArt(c: Canvas) {
-        val texture = backgroundTexture ?: Bitmap.createBitmap(900, 1800, Bitmap.Config.ARGB_8888).also { bitmap ->
-            val backdrop = Canvas(bitmap)
-            val brush = Paint(Paint.ANTI_ALIAS_FLAG)
-            brush.shader = RadialGradient(740f, 340f, 850f,
-                intArrayOf(0xff18254a.toInt(), 0xff080c1c.toInt()), null, Shader.TileMode.CLAMP)
-            backdrop.drawRect(0f, 0f, 900f, 1800f, brush); brush.shader = null
-            brush.color = 0xff202940.toInt()
-            for (x in 30..900 step 45) for (y in 30..1800 step 45)
-                backdrop.drawCircle(x.toFloat(), y.toFloat(), 1.3f, brush)
-            backgroundTexture = bitmap
+    private fun column(padding: Int = dp(16f)) = LinearLayout(context).apply {
+        orientation = VERTICAL; setPadding(padding, padding, padding, padding)
+    }
+    private fun LinearLayout.addLabel(value: String, sp: Float = 16f, color: Int = white): TextView =
+        label(value, sp, color).also { addView(it, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)) }
+    private fun LinearLayout.action(value: String, primary: Boolean = false, click: () -> Unit): Button {
+        val button = Button(context).apply {
+            text = value; textSize = 18f; typeface = gameFont; isAllCaps = false
+            minHeight = dp(56f); minimumHeight = dp(56f); minWidth = dp(48f)
+            setPadding(dp(16f), dp(12f), dp(16f), dp(12f))
+            setTextColor(if (primary) 0xff152020.toInt() else white)
+            background = panel(if (primary) lime else 0xff141e35.toInt(), if (primary) lime else 0xff394761.toInt())
+            setOnClickListener { click() }
         }
-        paint.color = Color.WHITE; paint.isFilterBitmap = true
-        c.drawBitmap(texture, 0f, 0f, paint)
+        addView(button, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10f) })
+        return button
     }
-
-    private fun text(c: Canvas, value: String, x: Float, y: Float, size: Float, color: Int = white,
-        face: Typeface = normal, align: Paint.Align = Paint.Align.LEFT, maxWidth: Float = 10000f) {
-        paint.shader = null; paint.style = Paint.Style.FILL; paint.color = color
-        paint.typeface = face; paint.textSize = size; paint.textAlign = align
-        val width = paint.measureText(value)
-        if (width > maxWidth) paint.textSize = size*maxWidth/width
-        c.drawText(value, x, y, paint)
-    }
-
-    private fun panel(c: Canvas, box: RectF, color: Int = 0xff10182e.toInt(), stroke: Int = 0xff2c3a59.toInt(), radius: Float = 22f) {
-        paint.style = Paint.Style.FILL; paint.color = color; c.drawRoundRect(box, radius, radius, paint)
-        paint.style = Paint.Style.STROKE; paint.strokeWidth = 2f; paint.color = stroke
-        c.drawRoundRect(box, radius, radius, paint); paint.style = Paint.Style.FILL
-    }
-
-    private fun button(c: Canvas, id: Int, label: String, x: Float, y: Float, w: Float, h: Float,
-        primary: Boolean = false, action: () -> Unit) {
-        val box = RectF(x, y, x+w, y+h)
-        panel(c, box, if (primary) lime else 0xff141e35.toInt(), if (primary) lime else 0xff394761.toInt(), 18f)
-        text(c, label, x+w/2, y+h/2+11, 30f, if (primary) 0xff152020.toInt() else white, bold, Paint.Align.CENTER, w-32)
-        buttons += UiButton(id, label, box, action)
-    }
-
-    private fun drawTitle(c: Canvas) {
-        text(c, s(R.string.reverse_breakout), 54f, 80f, 25f, cyan, bold)
-        text(c, s(R.string.neon_survival), 54f, 119f, 18f, muted)
-        text(c, s(R.string.title_line_one), 50f, 262f, 65f, white, bold, maxWidth = 800f)
-        text(c, s(R.string.title_line_two), 44f, 382f, 116f, lime, bold, maxWidth = 806f)
-        text(c, s(R.string.title_tagline), 54f, 450f, 26f, 0xffbcc9e2.toInt(), maxWidth = 792f)
-        // Code-native hero artwork: the actual 8 x 5 grid, with a divine regeneration target.
-        c.save(); c.translate(50f, 516f)
-        for (i in 0 until 40) {
-            val box = GameEngine.blockBox(i)
-            val missing = i in intArrayOf(9, 18, 22, 27, 28, 35)
-            drawBlock(c, box, i, !missing, i == 27)
+    private fun scrollColumn(padding: Int = dp(16f), weighted: Boolean = false): LinearLayout {
+        val body = column(padding)
+        val scroll = ScrollView(context).apply {
+            isFillViewport = true
+            addView(body, FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
         }
-        val hx = 355f; val hy = 315f
-        val pulse = (sin(uiTime*2)*.12+.88).toFloat()
-        paint.style = Paint.Style.STROKE; paint.strokeWidth = 2f; paint.color = alpha(lime, 100)
-        c.drawCircle(hx, hy, 53f*pulse, paint); c.drawCircle(hx, hy, 73f*pulse, paint)
-        paint.style = Paint.Style.FILL
-        val path = Path().apply { moveTo(630f, 595f); lineTo(530f, 505f); lineTo(395f, 399f) }
-        paint.style = Paint.Style.STROKE; paint.strokeWidth = 4f; paint.color = alpha(pink, 150); c.drawPath(path, paint)
-        paint.style = Paint.Style.FILL; paint.color = pink; c.drawCircle(395f, 399f, 10f, paint)
-        paint.color = alpha(pink, 30); c.drawCircle(395f, 399f, 26f, paint)
-        panel(c, RectF(548f, 597f, 690f, 609f), cyan, cyan, 6f)
-        for (i in 0 until 24) {
-            val a = i*2*PI/24
-            val distance = 35+(i%5)*9f
-            val x = 395+cos(a)*distance; val y = 399+sin(a)*distance
-            paint.color = colors[i%5]; c.drawCircle(x.toFloat(), y.toFloat(), (i%3+2).toFloat(), paint)
+        addView(scroll, LayoutParams(LayoutParams.MATCH_PARENT, if (weighted) 0 else LayoutParams.MATCH_PARENT, if (weighted) 1f else 0f))
+        return body
+    }
+    private fun buildScreen() {
+        removeAllViews(); arena = null; scoreText = null; timeText = null; statusText = null
+        liveText = null; effectText = null; slotText = null; countdownText = null; pauseButton = null
+        when (screen) {
+            Screen.TITLE -> buildTitle()
+            Screen.COUNTDOWN, Screen.PLAYING -> buildGame()
+            Screen.PAUSED -> buildPause()
+            Screen.RESULT -> buildResult()
         }
-        c.restore()
-        text(c, s(R.string.title_hint), 450f, 1190f, 25f, white, normal, Paint.Align.CENTER, 790f)
-        panel(c, RectF(54f, 1230f, 846f, 1340f))
-        text(c, s(R.string.personal_best), 80f, 1273f, 21f, muted)
-        text(c, ScoreFormat.score(bestTicks), 820f, 1310f, 47f, cyan, digits, Paint.Align.RIGHT, 540f)
-        text(c, s(R.string.score_formula), 80f, 1310f, 19f, muted)
+        updateUi(true)
+    }
+    private fun buildTitle() {
+        val body = scrollColumn()
+        body.addLabel(s(R.string.reverse_breakout), 13f, cyan)
+        body.addLabel(s(R.string.title_line_one), 30f)
+        body.addLabel(s(R.string.title_line_two), 52f, lime)
+        body.addLabel(s(R.string.title_tagline), 16f, muted)
+        body.addView(ArenaView(context, this, store, true), LayoutParams(LayoutParams.MATCH_PARENT, dp(220f)))
+        body.addLabel(s(R.string.title_hint), 16f)
+        body.addLabel(s(R.string.personal_best) + "  " + ScoreFormat.score(bestTicks), 22f, cyan)
+        body.addLabel(s(R.string.score_formula), 14f, muted)
         if (savedRun != null) {
-            button(c, 1, s(R.string.continue_run), 54f, 1370f, 792f, 100f, true) {
+            body.action(s(R.string.continue_run), true) {
                 savedRun?.let { runId = it.first; engine = it.second }; resumeGame()
             }
-            button(c, 6, s(R.string.new_game), 54f, 1490f, 384f, 90f) { beginRun() }
-            button(c, 2, s(R.string.rankings), 460f, 1490f, 386f, 90f) { rankings() }
-        } else {
-            button(c, 1, s(R.string.start_game), 54f, 1370f, 792f, 108f, true) { beginRun() }
-            button(c, 2, s(R.string.top_100), 54f, 1500f, 792f, 90f) { rankings() }
-        }
-        button(c, 3, s(R.string.how_to_play), 54f, 1610f, 384f, 82f) { guide() }
-        button(c, 4, s(R.string.settings), 460f, 1610f, 386f, 82f) { settings() }
-        text(c, s(R.string.title_footer), 450f, 1750f, 18f, muted, normal, Paint.Align.CENTER)
+            body.action(s(R.string.new_game)) { requestNewRun() }
+        } else body.action(s(R.string.start_game), true) { requestNewRun() }
+        body.action(s(R.string.top_100)) { rankings() }
+        body.action(s(R.string.how_to_play)) { guide() }
+        body.action(s(R.string.settings)) { settings() }
+        body.addLabel(s(R.string.title_footer), 12f, muted)
     }
-
-    private fun drawBlock(c: Canvas, box: Box, index: Int, alive: Boolean, highlighted: Boolean = false) {
-        val r = RectF(box.left.toFloat(), box.top.toFloat(), box.right.toFloat(), box.bottom.toFloat())
-        val color = if (highlighted) lime else colors[index/8]
-        if (alive) {
-            paint.color = alpha(color, 13); c.drawRoundRect(RectF(r.left-4, r.top-4, r.right+4, r.bottom+4), 12f, 12f, paint)
-            paint.color = Color.WHITE
-            paint.shader = LinearGradient(r.left, r.top, r.right, r.bottom,
-                intArrayOf(alpha(color, 195), alpha(color, 92)), null, Shader.TileMode.CLAMP)
-            c.drawRoundRect(r, 8f, 8f, paint); paint.shader = null
-            paint.style = Paint.Style.STROKE; paint.strokeWidth = 2f; paint.color = alpha(color, 240)
-            c.drawRoundRect(r, 8f, 8f, paint)
-            paint.color = alpha(Color.WHITE, 110); c.drawLine(r.left+10, r.top+5, r.right-10, r.top+5, paint)
-            paint.style = Paint.Style.FILL
-        } else {
-            paint.color = 0xff131d31.toInt(); c.drawRoundRect(r, 8f, 8f, paint)
-            paint.style = Paint.Style.STROKE; paint.strokeWidth = 1.7f; paint.color = if (highlighted) lime else 0xff50627c.toInt()
-            paint.pathEffect = DashPathEffect(floatArrayOf(6f,5f), 0f)
-            c.drawRoundRect(r, 8f, 8f, paint); paint.pathEffect = null
-            c.drawLine(r.centerX()-8, r.centerY(), r.centerX()+8, r.centerY(), paint)
-            c.drawLine(r.centerX(), r.centerY()-8, r.centerX(), r.centerY()+8, paint)
-            paint.style = Paint.Style.FILL
+    private fun buildGame() {
+        // Pause stays outside the scrolling game content, including at 200% text size.
+        val header = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.TOP; setPadding(dp(12f), dp(4f), dp(8f), 0) }
+        val numbers = object : LinearLayout(context) {
+            override fun onInitializeAccessibilityNodeInfo(info: android.view.accessibility.AccessibilityNodeInfo) {
+                super.onInitializeAccessibilityNodeInfo(info)
+                info.contentDescription = statusDescription()
+            }
+        }.apply {
+            orientation = VERTICAL; id = R.id.game_status_header
+            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
+            isFocusable = true; contentDescription = s(R.string.cpu_status)
         }
+        numbers.addLabel(s(R.string.survival_score), 12f, muted).importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+        scoreText = numbers.addLabel("", 32f).apply { importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO }
+        timeText = numbers.addLabel("", 16f, cyan).apply { importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO }
+        header.addView(numbers, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
+        val actions = column(0)
+        pauseButton = actions.action("Ⅱ") { pauseGame() }.apply { contentDescription = s(R.string.pause_action) }
+        header.addView(actions, LayoutParams(dp(64f), LayoutParams.WRAP_CONTENT))
+        addView(header, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+        val body = scrollColumn(dp(4f), true)
+        countdownText = body.addLabel("", 26f, lime).apply { gravity = Gravity.CENTER }
+        // Reserve the largest banner before play: effect/penalty text must not move tap targets.
+        val banner = FrameLayout(context)
+        effectText = label(s(R.string.restore_hint),16f,cyan).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(8f),dp(4f),dp(8f),dp(4f))
+            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        val bannerSp = android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,26f,resources.displayMetrics)
+        banner.addView(effectText,FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT))
+        body.addView(banner,LayoutParams(LayoutParams.MATCH_PARENT,ceil(bannerSp*3.6f).toInt()+dp(8f)))
+        liveText = LiveStatusView(context).apply { id = R.id.game_live_status }
+        body.addView(liveText, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+        val field = ArenaView(context, this, store).apply { minimumWidth = ArenaLayout.minimumWidth(dp(48f)) }
+        arena = field
+        val horizontal = HorizontalScrollView(context).apply {
+            isFillViewport = true
+            addView(field, FrameLayout.LayoutParams(ArenaLayout.minimumWidth(dp(48f)), dp(480f)))
+        }
+        body.addView(horizontal, LayoutParams(LayoutParams.MATCH_PARENT, dp(480f)))
+        body.addLabel(s(R.string.field_scroll_hint), 12f, muted)
+        val bottom = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.TOP }
+        statusText = QuietStatusText(context).apply {
+            id = R.id.game_status; textSize = 16f; typeface = gameFont; setTextColor(white)
+            setPadding(dp(8f), dp(8f), dp(8f), dp(8f)); background = panel()
+        }
+        bottom.addView(statusText, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
+        val slot = column(dp(8f)).apply { background = panel(0xff17162d.toInt(), 0xff685487.toInt()) }
+        slot.addLabel(s(R.string.cpu_slot), 12f, muted).apply { importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO }
+        slotText = slot.addLabel("", 22f, lime).apply { gravity = Gravity.CENTER; importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO }
+        bottom.addView(slot, LayoutParams(dp(104f), LayoutParams.WRAP_CONTENT).apply { leftMargin = dp(6f) })
+        body.addView(bottom, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+        body.action(s(R.string.read_status)) { announce(statusDescription()) }
     }
-
-    private fun drawGame(c: Canvas) {
+    private fun buildPause() {
+        val body = scrollColumn()
+        body.addLabel(s(R.string.paused_label), 16f, cyan)
+        body.addLabel(s(R.string.pause_title), 36f)
+        body.addLabel(s(R.string.pause_hint), 18f, muted)
+        body.addLabel(statusDescription(), 16f)
+        body.action(s(R.string.resume_game), true) { resumeGame() }
+        body.action(s(R.string.settings)) { settings() }
+        body.action(s(R.string.save_and_home)) { goHome() }
+    }
+    private fun buildResult() {
+        val body = scrollColumn()
+        body.addLabel(s(R.string.all_destroyed), 16f, pink)
+        body.addLabel(s(R.string.result_title), 34f)
+        body.addLabel(s(R.string.survival_score), 16f, muted)
+        body.addLabel(ScoreFormat.score(engine.ticks), 40f, lime)
+        body.addLabel(s(R.string.elapsed_seconds, ScoreFormat.seconds(engine.ticks)), 24f, cyan)
+        body.addLabel(if (recordError) s(R.string.save_error) else if (resultRank > 0) s(R.string.result_rank, resultRank) else s(R.string.outside_top_100), 20f)
+        body.addLabel(s(R.string.result_counts, engine.restoredCount, engine.slotCount), 16f, muted)
+        if (recordError) body.action(s(R.string.retry_save)) { saveResult(); buildScreen() }
+        body.action(s(R.string.play_again), true) { requestNewRun() }
+        body.action(s(R.string.view_rankings)) { rankings() }
+        body.action(s(R.string.back_to_title)) { goHome() }
+    }
+    internal fun statusDescription(): String {
         val e = engine
-        text(c, s(R.string.app_name), 50f, 62f, 26f, white, bold)
-        if (screen == Screen.PLAYING) button(c, 10, "Ⅱ", 744f, 22f, 106f, 70f) { pauseGame() }
-        text(c, s(R.string.survival_score), 50f, 120f, 19f, muted, bold)
-        text(c, ScoreFormat.score(e.ticks), 45f, 218f, 94f, white, digits, maxWidth = 790f)
-        text(c, s(R.string.time_label), 52f, 264f, 20f, muted, bold)
-        text(c, ScoreFormat.seconds(e.ticks) + " s", 128f, 269f, 35f, cyan, digits, maxWidth = 430f)
-        text(c, s(R.string.survival_squared), 845f, 265f, 21f, muted, normal, Paint.Align.RIGHT)
-        val effectAge = (e.elapsedNanos-e.lastEffectNanos)/1e9
-        if (e.lastEffect != null && effectAge < 2.8 && e.lastEffectNanos >= 0) {
-            val color = effectColor(e.lastEffect!!)
-            panel(c, RectF(50f, 298f, 850f, 390f), alpha(color, 28), color, 14f)
-            drawEffectSymbol(c, e.lastEffect!!, 128f, 360f, 38f, 112f)
-            text(c, s(e.lastEffect!!.text.label), 218f, 354f, 38f, white, bold, maxWidth = 600f)
-        } else {
-            text(c, if (e.remaining <= 8) s(R.string.danger_hint, e.remaining) else s(R.string.restore_hint), 450f, 352f, 28f,
-                if (e.remaining <= 8) pink else 0xffb7c6df.toInt(), bold, Paint.Align.CENTER, 780f)
+        fun seconds(until: Long) = ceil(max(0.0, (until - e.elapsedNanos) / 1e9)).toLong()
+        val speed = if (e.speedMultiplier < 1e9) e.speedMultiplier.toLong().toString() else "%.1e".format(Locale.US, e.speedMultiplier)
+        return s(R.string.status_description, (e.elapsedNanos / 1_000_000_000L).toString(),
+            ScoreFormat.score(e.ticks), e.remaining, e.balls.size, speed,
+            seconds(e.nextSlotNanos).toString(), seconds(e.pierceUntil).toString(),
+            seconds(e.splitUntil).toString(), seconds(e.lockedUntil).toString())
+    }
+    private fun updateUi(force: Boolean = false) {
+        if (screen != Screen.PLAYING && screen != Screen.COUNTDOWN) return
+        val now = SystemClock.elapsedRealtime()
+        arena?.refreshCells()
+        pauseButton?.isEnabled = true
+        countdownText?.visibility = if (screen == Screen.COUNTDOWN) VISIBLE else GONE
+        if (screen == Screen.COUNTDOWN) {
+            val message = s(R.string.countdown_accessible, ceil(countdown).toInt().coerceAtLeast(1))
+            if (countdownText?.text?.toString() != message) countdownText?.text = message
         }
-        panel(c, RectF(47f, 406f, 853f, 1466f), 0xff090f20.toInt(), if (e.remaining <= 8) pink else 0xff2b415e.toInt(), 22f)
-        c.save(); c.translate(50f, 413f)
-        // Field hit coordinates stay fixed even while the decorative explosions shake.
-        text(c, s(R.string.regen_field), 16f, 39f, 18f, muted, bold)
-        text(c, "${e.remaining} / 40", 784f, 42f, 25f, if (e.remaining <= 8) pink else cyan, digits, Paint.Align.RIGHT)
-        for (i in 0 until 40) drawBlock(c, GameEngine.blockBox(i), i, e.blocks[i])
-        for (y in 460..940 step 60) {
-            paint.color = 0xff152138.toInt(); paint.strokeWidth = 1f
-            c.drawLine(12f, y.toFloat(), 788f, y.toFloat(), paint)
-        }
-        // Traces and sparks are clipped to the arena; they never cover score or slot controls.
-        c.save(); c.clipRect(0f, 50f, 800f, 1050f)
-        for (b in e.balls) {
-            val color = if (e.piercing) pink else if (e.splitting) lime else white
-            val tail = min(95.0, 18+e.speedMultiplier*9)
-            paint.strokeCap = Paint.Cap.ROUND
-            for (i in 3 downTo 1) {
-                paint.strokeWidth = (11-i*2).toFloat(); paint.color = alpha(color, 28+(3-i)*23)
-                c.drawLine(b.x.toFloat(), b.y.toFloat(), (b.x-b.dx*tail*i/3).toFloat(), (b.y-b.dy*tail*i/3).toFloat(), paint)
+        if (force || now - lastVisibleUpdate >= 100) {
+            lastVisibleUpdate = now
+            liveText?.update(s(R.string.live_status, engine.remaining, engine.balls.size))
+            scoreText?.text = ScoreFormat.score(engine.ticks)
+            timeText?.text = s(R.string.elapsed_seconds, ScoreFormat.seconds(engine.ticks))
+            val e = engine
+            val age = (e.elapsedNanos - e.lastEffectNanos) / 1e9
+            effectText?.textSize = if (e.locked) 26f else 16f
+            effectText?.text = when {
+                e.locked -> s(R.string.cheat_title) + "  " + s(R.string.cheat_timer, "%.1f".format(Locale.US, (e.lockedUntil - e.elapsedNanos) / 1e9))
+                e.lastEffect != null && age < 2.8 -> s(e.lastEffect!!.text.label)
+                e.remaining <= 8 -> s(R.string.danger_hint, e.remaining)
+                else -> s(R.string.restore_hint)
             }
-            paint.color = alpha(color, 35); c.drawCircle(b.x.toFloat(), b.y.toFloat(), 17f, paint)
-            paint.color = color; c.drawCircle(b.x.toFloat(), b.y.toFloat(), 7f, paint)
-            paint.color = Color.WHITE; c.drawCircle(b.x.toFloat()-1.5f, b.y.toFloat()-1.5f, 3f, paint)
+            effectText?.setTextColor(if (e.locked || e.remaining <= 8) pink else cyan)
+            val effect = if (e.lastEffect != null && age < 1.15) e.lastEffect!! else SlotEffect.entries[(e.elapsedNanos / 100_000_000 % SlotEffect.entries.size).toInt()]
+            slotText?.text = s(effect.text.symbol) + (effect.text.secondary?.let { "\n" + s(it) } ?: "")
         }
-        c.save()
-        if (shake > 0) c.translate((sin(uiTime*73)*shake).toFloat(), (cos(uiTime*67)*shake).toFloat())
-        for (p in particles) {
-            paint.color = alpha(p.color, (255*p.life/p.maxLife).toInt().coerceIn(0,255))
-            paint.strokeWidth = p.size; paint.strokeCap = Paint.Cap.ROUND
-            c.drawLine(p.x, p.y, p.x-p.vx*.025f, p.y-p.vy*.025f, paint)
+        if (force || now - lastStatusUpdate >= 1000) {
+            lastStatusUpdate = now
+            val e = engine
+            fun remaining(until: Long) = ceil(max(0.0,(until-e.elapsedNanos)/1e9)).toLong().toString()
+            val speed = if (e.speedMultiplier < 1e9) e.speedMultiplier.toLong().toString() else "%.1e".format(Locale.US,e.speedMultiplier)
+            statusText?.text = s(R.string.visible_cpu_status,e.balls.size,speed,remaining(e.nextSlotNanos),
+                remaining(e.pierceUntil),remaining(e.splitUntil),remaining(e.lockedUntil))
         }
-        for (r in rings) {
-            val a = (1-r.age/.65f).coerceIn(0f, 1f)
-            paint.style = Paint.Style.STROKE; paint.color = alpha(r.color, (180*a).toInt()); paint.strokeWidth = 3*a
-            c.drawCircle(r.x, r.y, 12+r.age*120, paint); paint.style = Paint.Style.FILL
-            if (r.restore) text(c, s(R.string.regen_particle), r.x, r.y-r.age*60-18, 18f, alpha(lime,(255*a).toInt()), bold, Paint.Align.CENTER)
+        if (force || now - lastStatusEvent >= 5000) {
+            lastStatusEvent = now
+            statusText?.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED)
+            // Invalidate the service's cached header node without announcing every score tick.
+            findViewById<View>(R.id.game_status_header)?.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED)
         }
-        c.restore(); c.restore()
-        val px = e.paddleX.toFloat()
-        paint.color = alpha(cyan, 35); c.drawRoundRect(px-70, 967f, px+70, 997f, 15f, 15f, paint)
-        panel(c, RectF(px-63, 974f, px+63, 986f), cyan, cyan, 6f)
-        text(c, s(R.string.cpu_auto), px, 1024f, 16f, muted, bold, Paint.Align.CENTER)
-        c.restore()
-        drawStatusAndSlot(c)
-        if (e.locked && (screen == Screen.PLAYING || screen == Screen.COUNTDOWN)) {
-            panel(c, RectF(76f, 870f, 824f, 1130f), 0xf21e1030.toInt(), pink, 24f)
-            text(c, s(R.string.cheat_title), 450f, 970f, 68f, pink, bold, Paint.Align.CENTER, 690f)
-            text(c, s(R.string.cheat_timer, "%.1f".format(java.util.Locale.US, (e.lockedUntil-e.elapsedNanos)/1e9)), 450f, 1035f, 35f, white, bold, Paint.Align.CENTER, 690f)
-            text(c, s(R.string.cheat_hint), 450f, 1084f, 24f, 0xffd0b8d5.toInt(), normal, Paint.Align.CENTER, 690f)
+        if (force) {
+            lastSpokenStatus=s(R.string.live_status,engine.remaining,engine.balls.size)
+            cadence.reset(now)
+        } else if (screen == Screen.PLAYING && cadence.due(now)) {
+            val message=s(R.string.live_status,engine.remaining,engine.balls.size)
+            if(message!=lastSpokenStatus) { liveText?.publish();lastSpokenStatus=message }
         }
     }
-
-    private fun drawStatusAndSlot(c: Canvas) {
-        val e = engine
-        panel(c, RectF(50f, 1492f, 594f, 1730f))
-        text(c, s(R.string.cpu_status), 75f, 1531f, 18f, muted, bold)
-        text(c, s(R.string.ball_count, e.balls.size), 75f, 1590f, 38f, cyan, digits, maxWidth = 225f)
-        val speed = if (e.speedMultiplier < 1e9) "×${e.speedMultiplier.toLong()}" else "×${"%.1e".format(java.util.Locale.US,e.speedMultiplier)}"
-        text(c, speed, 560f, 1590f, 40f, pink, digits, Paint.Align.RIGHT, 245f)
-        val p = max(0.0, (e.pierceUntil-e.elapsedNanos)/1e9)
-        val s = max(0.0, (e.splitUntil-e.elapsedNanos)/1e9)
-        text(c, s(R.string.effect_timers, "%.1f".format(java.util.Locale.US,p), "%.1f".format(java.util.Locale.US,s)), 75f, 1645f, 26f,
-            if (p+s>0) lime else muted, bold, maxWidth = 486f)
-        text(c, s(R.string.run_counts, e.restoredCount, e.slotCount), 75f, 1697f, 22f, muted, maxWidth = 485f)
-        val effectAge = (e.elapsedNanos-e.lastEffectNanos)/1e9
-        val stopped = e.lastEffect != null && effectAge < 1.15 && e.lastEffectNanos >= 0
-        panel(c, RectF(614f, 1492f, 850f, 1730f), 0xff17162d.toInt(), if (stopped) effectColor(e.lastEffect!!) else 0xff685487.toInt())
-        text(c, s(R.string.cpu_slot), 732f, 1531f, 18f, muted, bold, Paint.Align.CENTER)
-        c.save(); c.clipRect(627f, 1550f, 837f, 1673f)
-        if (stopped) {
-            drawEffectSymbol(c, e.lastEffect!!, 732f, 1634f, 60f, 195f)
-        } else {
-            val pos = (e.elapsedNanos/1e9*12)
-            val base = floor(pos).toInt()
-            val shift = ((pos-floor(pos))*112).toFloat()
-            for (i in -1..1) {
-                val effect = SlotEffect.entries[Math.floorMod(base+i, SlotEffect.entries.size)]
-                drawEffectSymbol(c, effect, 732f, 1635f+i*112-shift, 53f, 190f)
-            }
+    // Visible detail refreshes once a second; automatic speech is a compact, 5-second live region.
+    private inner class QuietStatusText(context: Context) : TextView(context) {
+        override fun sendAccessibilityEventUnchecked(event: AccessibilityEvent) {
+            if (event.eventType != AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED) super.sendAccessibilityEventUnchecked(event)
         }
-        c.restore()
-        val next = max(0.0, (e.nextSlotNanos-e.elapsedNanos)/1e9)
-        text(c, if (stopped) s(R.string.effect_active) else s(R.string.next_slot, "%.1f".format(java.util.Locale.US,next)), 732f, 1700f, 23f,
-            if (stopped) lime else white, bold, Paint.Align.CENTER)
-        text(c, s(R.string.slot_footer), 450f, 1770f, 19f, muted, normal, Paint.Align.CENTER, 800f)
-    }
-
-    private fun dim(c: Canvas) { paint.color = 0xda060a18.toInt(); c.drawRect(0f,0f,900f,1800f,paint) }
-
-    private fun drawCountdown(c: Canvas) {
-        dim(c)
-        text(c, "${ceil(countdown).toInt().coerceAtLeast(1)}", 450f, 900f, 220f, lime, digits, Paint.Align.CENTER)
-        text(c, s(R.string.countdown_hint), 450f, 1000f, 34f, white, bold, Paint.Align.CENTER, 790f)
-        text(c, s(R.string.countdown_end), 450f, 1060f, 26f, muted, normal, Paint.Align.CENTER, 790f)
-    }
-
-    private fun drawPause(c: Canvas) {
-        dim(c)
-        text(c, s(R.string.paused_label), 450f, 604f, 26f, cyan, bold, Paint.Align.CENTER)
-        text(c, s(R.string.pause_title), 450f, 704f, 70f, white, bold, Paint.Align.CENTER)
-        text(c, s(R.string.pause_hint), 450f, 779f, 27f, muted, normal, Paint.Align.CENTER, 790f)
-        button(c, 20, s(R.string.resume_game), 130f, 860f, 640f, 110f, true) { resumeGame() }
-        button(c, 21, s(R.string.settings), 130f, 996f, 640f, 94f) { settings() }
-        button(c, 22, s(R.string.save_and_home), 130f, 1116f, 640f, 94f) { goHome() }
-    }
-
-    private fun drawResult(c: Canvas) {
-        dim(c)
-        text(c, s(R.string.all_destroyed), 450f, 366f, 24f, pink, bold, Paint.Align.CENTER)
-        text(c, s(R.string.result_title), 450f, 466f, 69f, white, bold, Paint.Align.CENTER, 800f)
-        panel(c, RectF(80f, 535f, 820f, 990f), 0xff101a31.toInt(), 0xff425577.toInt(), 26f)
-        text(c, s(R.string.survival_score), 450f, 600f, 23f, muted, bold, Paint.Align.CENTER)
-        text(c, ScoreFormat.score(engine.ticks), 450f, 719f, 84f, lime, digits, Paint.Align.CENTER, 684f)
-        text(c, s(R.string.elapsed_seconds, ScoreFormat.seconds(engine.ticks)), 450f, 793f, 40f, cyan, digits, Paint.Align.CENTER, 680f)
-        text(c, "${ScoreFormat.seconds(engine.ticks)}² = SCORE", 450f, 843f, 21f, muted, normal, Paint.Align.CENTER, 680f)
-        text(c, if (recordError) s(R.string.save_error) else if (resultRank > 0) s(R.string.result_rank, resultRank) else s(R.string.outside_top_100),
-            450f, 921f, 34f, if (recordError) pink else white, bold, Paint.Align.CENTER, 680f)
-        text(c, s(R.string.result_counts, engine.restoredCount, engine.slotCount), 450f, 1050f, 26f, muted, normal, Paint.Align.CENTER, 790f)
-        if (recordError) button(c, 35, s(R.string.retry_save), 130f, 1100f, 640f, 80f) { saveResult() }
-        button(c, 30, s(R.string.play_again), 100f, 1220f, 700f, 110f, true) { beginRun() }
-        button(c, 31, s(R.string.view_rankings), 100f, 1360f, 700f, 96f) { rankings() }
-        button(c, 32, s(R.string.back_to_title), 100f, 1486f, 700f, 92f) { goHome() }
-    }
-
-    private fun drawEffectSymbol(c: Canvas, effect: SlotEffect, x: Float, baseline: Float, size: Float, width: Float) {
-        val color = effectColor(effect)
-        val copy = effect.text
-        val secondary = copy.secondary?.let { s(it) }
-        if (secondary == null) {
-            text(c, s(copy.symbol), x, baseline, size, color, bold, Paint.Align.CENTER, width)
-        } else {
-            text(c, s(copy.symbol), x, baseline-size*.28f, size*.8f, color, bold, Paint.Align.CENTER, width)
-            text(c, secondary, x, baseline+size*.32f, size*.43f, color, bold, Paint.Align.CENTER, width)
+        override fun onInitializeAccessibilityNodeInfo(info: android.view.accessibility.AccessibilityNodeInfo) {
+            super.onInitializeAccessibilityNodeInfo(info)
+            info.text = statusDescription()
         }
     }
-
-    private fun effectColor(effect: SlotEffect): Int = when (effect) {
-        SlotEffect.RESET_SPEED, SlotEffect.RESET_BALLS -> lime
-        SlotEffect.SPEED_DOUBLE, SlotEffect.SPEED_TRIPLE, SlotEffect.PIERCE -> pink
-        SlotEffect.ADD_BALLS -> cyan
-        SlotEffect.SPLIT -> 0xffc788ff.toInt()
-        SlotEffect.ADD_FIVE_PIERCE -> 0xff67ffc2.toInt()
-        SlotEffect.TRIPLE_SPLIT -> 0xffffaa54.toInt()
+    internal fun restoreAccessible(index: Int): Boolean {
+        if (screen != Screen.PLAYING) return false
+        tick(SystemClock.elapsedRealtimeNanos())
+        if (screen != Screen.PLAYING || !engine.restore(index)) return false
+        processEvents(); updateUi(); return true
     }
-    private fun alpha(color: Int, alpha: Int): Int = (color and 0x00ffffff) or (alpha.coerceIn(0,255) shl 24)
+    internal fun blockCenterOnScreen(index: Int): PointF = requireNotNull(arena).cellCenterOnScreen(index)
+    internal fun blockCell(index: Int): View = requireNotNull(arena).getChildAt(index)
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (screen == Screen.PLAYING) tick(SystemClock.elapsedRealtimeNanos())
-        val x = (event.x-offsetX)/scale; val y = (event.y-offsetY)/scale
-        when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                downX = x; downY = y
-                pendingButton = buttons.firstOrNull { it.box.contains(x,y) }?.id
-                if (screen == Screen.PLAYING) guard.down(GameEngine.blockAt((x-50).toDouble(),(y-413).toDouble()), !engine.locked)
-            }
-            MotionEvent.ACTION_POINTER_DOWN -> {
-                pendingButton = null
-                if (screen == Screen.PLAYING) { guard.multiple(engine); processEvents() }
-            }
-            MotionEvent.ACTION_MOVE -> {
-                if (hypot(x-downX,y-downY) > 25) { guard.cancel(); pendingButton = null }
-                if (event.pointerCount > 1 && screen == Screen.PLAYING) { guard.multiple(engine); processEvents() }
-            }
-            MotionEvent.ACTION_UP -> {
-                if (screen == Screen.PLAYING) {
-                    guard.up(engine, GameEngine.blockAt((x-50).toDouble(),(y-413).toDouble())); processEvents()
-                }
-                val b = buttons.firstOrNull { it.id == pendingButton && it.box.contains(x,y) }
-                pendingButton = null; b?.action?.invoke(); performClick()
-            }
-            MotionEvent.ACTION_CANCEL -> { guard.cancel(); pendingButton = null }
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) multipleGesture = false
+        if (screen == Screen.PLAYING && event.actionMasked == MotionEvent.ACTION_POINTER_DOWN) {
+            tick(SystemClock.elapsedRealtimeNanos()); guard.multiple(engine); processEvents(); multipleGesture = true
+            val cancel = MotionEvent.obtain(event).apply { action = MotionEvent.ACTION_CANCEL }
+            super.dispatchTouchEvent(cancel); cancel.recycle()
         }
-        invalidate(); return true
+        if (multipleGesture) return true
+        return super.dispatchTouchEvent(event)
     }
-    override fun performClick(): Boolean { super.performClick(); return true }
-
     @Suppress("DEPRECATION")
     private fun announce(message: String) { announceForAccessibility(message) }
-
-    // Expose actual menu actions and single-block restore actions to Android accessibility tools.
-    override fun getAccessibilityNodeProvider(): AccessibilityNodeProvider = object : AccessibilityNodeProvider() {
-        @Suppress("DEPRECATION")
-        override fun createAccessibilityNodeInfo(id: Int): AccessibilityNodeInfo? {
-            if (id == HOST_VIEW_ID) return AccessibilityNodeInfo.obtain(this@GameView).apply {
-                onInitializeAccessibilityNodeInfo(this)
-                buttons.forEach { addChild(this@GameView,it.id) }
-                if (screen == Screen.PLAYING) for (i in 0..39) addChild(this@GameView,100+i)
-            }
-            val b = buttons.firstOrNull { it.id == id }
-            val index = id-100
-            val box: RectF
-            val label: String
-            if (b != null) { box = b.box; label = b.label }
-            else if (screen == Screen.PLAYING && index in 0..39) {
-                val r = GameEngine.blockBox(index)
-                box = RectF(r.left.toFloat()+50,r.top.toFloat()+413,r.right.toFloat()+50,r.bottom.toFloat()+413)
-                label = s(if (engine.blocks[index]) R.string.block_present else R.string.block_empty, index/8+1, index%8+1)
-            } else return null
-            val location = IntArray(2); getLocationOnScreen(location)
-            return AccessibilityNodeInfo.obtain().apply {
-                setSource(this@GameView,id); setParent(this@GameView)
-                className = "android.widget.Button"; packageName = context.packageName
-                contentDescription = label; text = label
-                isClickable = true; isEnabled = true; isVisibleToUser = true; isFocusable = true
-                setBoundsInScreen(Rect((box.left*scale+offsetX+location[0]).toInt(), (box.top*scale+offsetY+location[1]).toInt(),
-                    (box.right*scale+offsetX+location[0]).toInt(),(box.bottom*scale+offsetY+location[1]).toInt()))
-                addAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK)
-            }
-        }
-        override fun performAction(id: Int, action: Int, arguments: Bundle?): Boolean {
-            if (action != AccessibilityNodeInfo.ACTION_CLICK) return false
-            buttons.firstOrNull { it.id == id }?.let { it.action(); invalidate(); return true }
-            if (screen == Screen.PLAYING && id-100 in 0..39) {
-                tick(SystemClock.elapsedRealtimeNanos()); engine.restore(id-100); processEvents(); invalidate(); return true
-            }
-            return false
-        }
-    }
 }

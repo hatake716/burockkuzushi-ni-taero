@@ -33,11 +33,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = false
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         volumeControlStream = android.media.AudioManager.STREAM_MUSIC
         store = GameStore(this)
         audio = GameAudio(this, store) { if (::gameView.isInitialized) gameView.pauseGame() }
-        gameView = GameView(this, store, audio, ::showRankings, ::showGuide, ::showSettings)
+        gameView = GameView(this, store, audio, ::showRankings, ::showGuide, ::showSettings,
+            ::confirmReplaceRun) { playing ->
+            if (playing) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            else window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
         val root = android.widget.FrameLayout(this).apply {
             setBackgroundColor(Color.rgb(8, 12, 28))
             addView(gameView)
@@ -57,6 +60,29 @@ class MainActivity : ComponentActivity() {
                 }
             }
         })
+    }
+
+    private fun confirmReplaceRun(start: () -> Unit) {
+        val density = resources.displayMetrics.density
+        fun dp(value: Int) = (value * density).toInt()
+        val body = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(20),dp(12),dp(20),dp(16))
+        }
+        body.addView(TextView(this).apply { text = getString(R.string.replace_run_message); textSize = 18f })
+        val dialog = AlertDialog.Builder(this).setTitle(R.string.replace_run_title)
+            .setView(ScrollView(this).apply { addView(body) }).create()
+        fun action(label: Int, run: () -> Unit) {
+            body.addView(android.widget.Button(this).apply {
+                text = getString(label); textSize = 18f; isAllCaps = false
+                minimumHeight = dp(56); minHeight = dp(56)
+                setPadding(dp(12),dp(12),dp(12),dp(12))
+                setOnClickListener { dialog.dismiss(); run() }
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
+        }
+        action(R.string.cancel) { }
+        action(R.string.replace_run_confirm,start)
+        dialog.showWithGameFont()
     }
 
     private fun showGuide() {
